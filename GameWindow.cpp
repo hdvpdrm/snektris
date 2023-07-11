@@ -30,7 +30,6 @@ void GameWindow::run()
         //then update it and change state machine
         if (current_state_machine->should_move_to_next())
         {
-            cout << "move to next!" << endl;
             manager.update();
             current_state_machine = manager.get_current_state_machine();
         }
