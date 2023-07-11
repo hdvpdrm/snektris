@@ -35,6 +35,7 @@ private:
     sf::RectangleShape apple = sf::RectangleShape(sf::Vector2f(16.0f, 16.0f));
     sf::RectangleShape snake_head = sf::RectangleShape(sf::Vector2f(16.0f, 16.0f));
     sf::RectangleShape border = sf::RectangleShape(sf::Vector2f(4.0f, CELL_SIZE*CELL_MAX));
+    sf::RectangleShape block = sf::RectangleShape(sf::Vector2f(16.0f, 16.0f));
     bool cleared = false;
 
     sf::Clock clock;
@@ -46,8 +47,8 @@ public:
 	{
         apple.setFillColor(sf::Color::Red);
         snake_head.setFillColor(sf::Color::Green);
-        border.setFillColor(sf::Color::Magenta);
-
+        border.setFillColor(sf::Color(229,185,242,255));
+        block.setFillColor(sf::Color(68,55,72,255));
 		map = new Map(CELL_MAX, CELL_MAX, snake.get_head_pos());
 
         //key processing
@@ -170,7 +171,7 @@ public:
 
         BaseEvent* process_snake_fading = new SimpleEvent(AS, []() {return true; },
             [&]() {
-                if (clock.getElapsedTime().asSeconds() > 0.3f)
+                if (clock.getElapsedTime().asSeconds() > 0.1f)
                 {
                     if (!snake_parts.empty())
                     {
@@ -217,6 +218,8 @@ public:
                         ev->process();
                 }
 
+                block.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + delta * 2, (float)y * CELL_SIZE));
+                window.draw(block);
                 auto cell = map->get_cell(x, y);
                 if (holds_alternative<GameState>(cell))
                 {
@@ -238,10 +241,10 @@ public:
 
 
                         auto color = sf::Color();
-                        if (diff < 220)color = sf::Color(0, 255 - diff, 0, 255);
+                        if (diff < 220)color = sf::Color(255 - diff, 255 - diff, 255-diff, 255);
                         else
                         {
-                            color = sf::Color(0, 25, 0, 255);
+                            color = sf::Color(25, 25, 25, 255);
                         }
                         snake_head.setFillColor(color);
                         snake_head.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + delta*2, (float)y * CELL_SIZE));
@@ -267,7 +270,7 @@ private:
 public:
     Death()
     {
-        end_font.loadFromFile("assets/end_font.TTF");
+        end_font.loadFromFile("assets/ARCADECLASSIC.TTF");
         
         auto end_text = "end";
         float x = 120.0f;
