@@ -170,7 +170,7 @@ public:
 
         BaseEvent* process_snake_fading = new SimpleEvent(AS, []() {return true; },
             [&]() {
-                if (clock.getElapsedTime().asSeconds() > 0.5f)
+                if (clock.getElapsedTime().asSeconds() > 0.3f)
                 {
                     if (!snake_parts.empty())
                     {
@@ -235,8 +235,14 @@ public:
                     {
                         auto* piece = get<1>(obj);
                         auto diff = (snake.len() - piece->get_val())*10;
-                        auto green_val = 255 - diff ? (255 - diff) > 0: 25;
-                        auto color = sf::Color(0, 255-diff, 0, 255);
+
+
+                        auto color = sf::Color();
+                        if (diff < 220)color = sf::Color(0, 255 - diff, 0, 255);
+                        else
+                        {
+                            color = sf::Color(0, 25, 0, 255);
+                        }
                         snake_head.setFillColor(color);
                         snake_head.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + delta*2, (float)y * CELL_SIZE));
                         window.draw(snake_head);
@@ -248,12 +254,8 @@ public:
 private:
     void draw_border(sf::RenderWindow& window)
     {
-        border.setPosition(sf::Vector2f((2*delta)-4.0f, 0.0f));
+        border.setPosition(sf::Vector2f((2*delta)-8.0f, 0.0f));
         window.draw(border);
-    }
-    void process_snake_fading()
-    {
-
     }
 
 };
