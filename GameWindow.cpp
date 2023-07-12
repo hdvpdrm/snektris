@@ -32,6 +32,7 @@ void GameWindow::run()
         {
             manager.update();
             current_state_machine = manager.get_current_state_machine();
+            event_manager = current_state_machine->get_event_manager();
         }
 
         //process events, that doesn't require special and additional data
@@ -41,7 +42,6 @@ void GameWindow::run()
                 if (e->get_c_type() == BaseEvent::ComplexityType::simple)
                     static_cast<SimpleEvent*>(e)->process();
             }
-        
 
         
         clear();

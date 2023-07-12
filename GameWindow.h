@@ -1,7 +1,7 @@
 #ifndef GAME_WINDOW_H
 #define GAME_WINDOW_H
 #include"StateMachine.h"
-
+#include<algorithm>
 //use private inheritance, because RenderWindow's methods are used within this class only
 class GameWindow: sf::RenderWindow
 {
