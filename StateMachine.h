@@ -4,6 +4,7 @@
 #include"Map.h"
 #include"Event.h"
 #include"SFML/Graphics.hpp"
+#include"FallingBlock.h"
 #include<iostream>
 /*
     StateMachine.
@@ -39,9 +40,12 @@ private:
     bool cleared = false;
 
     sf::Clock clock;
-public:
+    sf::Clock block_generator_clock;
+    sf::Clock block_movement_clock;
+
 	Snake snake;
 	Map* map = nullptr;
+    list<FallingBlock*> falling_blocks;
 public:
 	Game()
 	{
@@ -49,7 +53,13 @@ public:
         snake_head.setFillColor(sf::Color::Green);
         border.setFillColor(sf::Color(229,185,242,255));
         block.setFillColor(sf::Color(68,55,72,255));
+
 		map = new Map(CELL_MAX, CELL_MAX, snake.get_head_pos());
+        block_generator_clock.restart();
+
+        falling_blocks.push_back(new FallingBlock);
+
+
 
         //key processing
         BaseEvent* move_left = new SimpleEvent(INDEP, []() {
@@ -88,12 +98,12 @@ public:
 
         //this is nonconditional event
    //because snake is moving all time
-        BaseEvent* process_movement = new SimpleEvent(INDEP, []() {return true; },
+        BaseEvent* process_movement = new SimpleEvent(INDEP, ALWAYS_RET_T,
             [&]() {snake.move(); });
         event_manager.add(process_movement);
 
 
-        BaseEvent* update = new MapEvent(DEP, []() {return true; },
+        BaseEvent* update = new MapEvent(DEP, ALWAYS_RET_T,
             [&](size_t x, size_t y, Map* map)
             {
                 auto cell = map->get_cell(x, y);
@@ -116,22 +126,17 @@ public:
             });
         event_manager.add(update);
 
-        BaseEvent* eat_apple = new MapEvent(DEP, []() {return true; },
-            [&](size_t x, size_t y, Map* map)
+        BaseEvent* eat_apple = new SimpleEvent(INDEP,[&]()
+            { return does_snake_eat_apple(); },
+            [&]()
             {
-                if (map->get_apple_pos() == snake.get_head_pos())
-                {
-                    snake.grow();
-                    map->set_element(snake.get_head_pos().x, snake.get_head_pos().y,
-                        GameState(State::none));
-                    map->create_apple();
-                }
+                snake.grow();
             });
         event_manager.add(eat_apple);
 
         auto is_dead = [&](const sf::Vector2u& a, const sf::Vector2u& b)
         {return a == b; };
-        BaseEvent* check_death = new MapEvent(DEP, []() {return true; },
+        BaseEvent* check_death = new MapEvent(DEP, ALWAYS_RET_T,
             [&](size_t x, size_t y, Map* map)
             {
                 auto cell = map->get_cell(x, y);
@@ -169,7 +174,7 @@ public:
         event_manager.add(check_death);
 
 
-        BaseEvent* process_snake_fading = new SimpleEvent(AS, []() {return true; },
+        BaseEvent* process_snake_fading = new SimpleEvent(AS, ALWAYS_RET_T,
             [&]() {
                 if (clock.getElapsedTime().asSeconds() > 0.1f)
                 {
@@ -186,7 +191,53 @@ public:
             });
         event_manager.add(process_snake_fading);
 
-       
+
+        //events related to falling blocks
+        BaseEvent* generate_falling_block = new SimpleEvent(INDEP, 
+            [&]()
+            {
+                if (block_generator_clock.getElapsedTime().asSeconds() > 15.0f)return true;
+                else return false;
+            },
+            [&]()
+            {
+                falling_blocks.push_back(new FallingBlock);
+                block_generator_clock.restart();
+            });
+        event_manager.add(generate_falling_block);
+
+        BaseEvent* move_blocks = new SimpleEvent(INDEP, [&]()
+            {
+                if (block_movement_clock.getElapsedTime().asSeconds() > 1.0f and
+                    !falling_blocks.empty())return true;
+                else return false;
+            },
+            [&]()
+            {
+                for (auto& block : falling_blocks)block->fall();
+            });
+        event_manager.add(move_blocks);
+
+        BaseEvent* set_blocks = new SimpleEvent(INDEP, ALWAYS_RET_T,
+            [&]()
+            {
+                for (auto it = falling_blocks.begin();it!=falling_blocks.end();++it)
+                {
+                    auto fb = (*it);
+                    for (int i = 0;i<4;i++)
+                    {
+                        auto pos = fb->get_poses()[i];
+                        if(pos != DEAD_BLOCK)
+                        if (pos.y >= 0)
+                        {
+                            //delete old position and then set new one
+                            map->set_element(pos.x, pos.y - 1, GameState(State::none));
+                            map->set_element(pos.x, pos.y, GameState(State::apple));
+                        }
+                    }
+                }
+            });
+        event_manager.add(set_blocks);
 	}
 	~Game()
 	{
@@ -220,6 +271,7 @@ public:
 
                 block.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + delta * 2, (float)y * CELL_SIZE));
                 window.draw(block);
+
                 auto cell = map->get_cell(x, y);
                 if (holds_alternative<GameState>(cell))
                 {
@@ -251,6 +303,7 @@ public:
                         window.draw(snake_head);
                     }
                 }
+
             }
         draw_border(window);
     }
@@ -260,38 +313,52 @@ private:
         border.setPosition(sf::Vector2f((2*delta)-8.0f, 0.0f));
         window.draw(border);
     }
+    
+    bool does_snake_eat_apple()
+    {
+        for (auto it = falling_blocks.begin();it!=falling_blocks.end();++it)
+        {
+            auto block = *it;
+            for (int i = 0; i < 4; ++i)
+            {
+                auto pos = block->get_poses()[i];
+                if(pos != DEAD_BLOCK)
+                if (pos == snake.get_head_pos())
+                {
+                    block->del(i);
+                    if (block->time_to_die())
+                    {
+                        falling_blocks.erase(it);
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
 };
 class Death:public BaseStateMachine
 {
 private:
     sf::Font end_font;
-    sf::Text end[3] = {sf::Text(),sf::Text(),sf::Text()};
+    sf::Text title;
 public:
     Death()
     {
         end_font.loadFromFile("assets/ARCADECLASSIC.TTF");
-        
-        auto end_text = "end";
-        float x = 120.0f;
-        for (int i = 0; i < 3; ++i)
-        {
-            end[i].setFillColor(sf::Color::Blue);
-            end[i].setFont(end_font);
-            end[i].setCharacterSize(70);
-
-            sf::String str; str += end_text[i];
-            end[i].setString(str);
-            end[i].setPosition(sf::Vector2f(x, 100.0f));
-            x += 120.0f;
-        }
-
+        title.setString("ATE    YOURSELF");
+        title.setCharacterSize(64);
+        title.setFillColor(sf::Color::White);
+        title.setPosition(200.0f, 40.0f);
+        title.setFont(end_font);
     }
     ~Death(){}
 
     void render(sf::RenderWindow& window)
     {
-        for (int i = 0; i < 3; ++i)window.draw(end[i]);
+        window.draw(title);
     }
 };
 
