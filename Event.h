@@ -69,6 +69,7 @@ public:
 #define DEP BaseEvent::Type::dependent
 #define AS BaseEvent::Type::after_stop
 
+#define ALWAYS_RET_T [](){ return true;}
 
 //implementation of events, whose callback function doesn't require any additional information
 class SimpleEvent: public BaseEvent
