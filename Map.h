@@ -30,8 +30,6 @@ class Map
 {
 private:
 	Matrix<GameState>* map = nullptr;
-	
-	sf::Vector2u apple_pos;
 public:
 	Map(size_t width, size_t height, const sf::Vector2u& snake_head_pos);
 	~Map();
@@ -47,14 +45,6 @@ public:
 		map->set_element(state, x, y);
 	}
 
-	auto get_apple_pos() { return apple_pos; }
-	void create_apple()
-	{
-		auto x = get_random_int(0, CELL_MAX - 1);
-		auto y = get_random_int(0, CELL_MAX - 1);
-		apple_pos = sf::Vector2u(x, y);
-		map->set_element(GameState(State::apple), x, y);
-	}
 	stack<sf::Vector2u> get_snake();
 };
 

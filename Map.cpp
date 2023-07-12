@@ -10,9 +10,6 @@ Map::Map(size_t width, size_t height,const sf::Vector2u& snake_head_pos)
 
 	//set start position of snake
 	map->set_element(GameState(new SnakePiece(1)), snake_head_pos.x, snake_head_pos.y);
-
-	//generate random apple
-	create_apple();
 }
 Map::~Map()
 {
