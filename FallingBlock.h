@@ -13,6 +13,8 @@ private:
 	void generate_vertical_block();
 	std::vector<sf::Vector2u> poses;
 	short del_counter = 0;
+
+	bool can_move = true;
 public:
 	FallingBlock();
 	~FallingBlock();
@@ -24,7 +26,7 @@ public:
 		poses.erase(poses.begin() + i);
 	}
 	bool time_to_die() { return del_counter == 3; }
-private:
+	void set_move_flag(bool flag) { can_move = flag; }
 };
 
 

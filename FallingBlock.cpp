@@ -22,11 +22,27 @@ void FallingBlock::generate_vertical_block()
 }
 void FallingBlock::fall()
 {
-	for (int i = 0;i<poses.size();++i)
+	if (can_move)
 	{
-		if ((*(--poses.end())).y + 1 != 27)
+		int i = 0;
+		while (i < poses.size())
 		{
 			poses[i].y += 1;
+			i++;
+		}
+	}
+	else
+	{
+		int i = 0;
+		while (i < poses.size())
+		{
+			if (i + 1 < poses.size())
+			{
+				int dist = (int)poses[i].y - (int)poses[i+1].y;
+				if (dist > 1)
+					poses[i + 1].y += 1;
+			}
+			i++;
 		}
 	}
 }
