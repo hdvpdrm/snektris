@@ -198,6 +198,7 @@ public:
                     {
                         auto pos = snake_parts.top();
                         snake_parts.pop();
+                        snake.decrease_length();
 
                         map->set_element(pos.x, pos.y, GameState(State::none));
                     }
@@ -212,7 +213,7 @@ public:
         BaseEvent* generate_falling_block = new SimpleEvent(INDEP, 
             [&]()
             {
-                if (block_generator_clock.getElapsedTime().asSeconds() > 15.0f)return true;
+                if (block_generator_clock.getElapsedTime().asSeconds() > 5.0f)return true;
                 else return false;
             },
             [&]()
@@ -241,14 +242,30 @@ public:
                 for (auto it = falling_blocks.begin();it!=falling_blocks.end();++it)
                 {
                     auto fb = (*it);
-                    for (auto pos:fb->get_poses())
+                    for (auto pos : fb->get_poses())
                     {
-                        if (pos.y >= 0)
+
+                        //if it reaches the bottom move all down and break
+                        auto begin_y = fb->get_poses()[0].y + 1;
+                        if (begin_y == CELL_MAX)
                         {
-                            //delete old position and then set new one
-                            if(!map->is_snake_at_pos(pos.x,pos.y-1))
-                                map->set_element(pos.x, pos.y - 1, GameState(State::none));
-                            map->set_element(pos.x, pos.y, GameState(State::apple));
+                            for(auto p: fb->get_poses())set_block_element(p);
+                            fb->set_move_flag(false);
+                            break;
+                        }
+
+                        if (map->is_empty(pos.x, begin_y))
+                        {
+                            fb->set_move_flag(true);
+                            if (pos.y >= 0)
+                            {
+                                set_block_element(pos);
+                            }
+                        }
+                        else
+                        {
+                            connect_blocks(pos, begin_y, fb);
+                            fb->set_move_flag(false);
                         }
                     }
                 }
@@ -369,6 +386,31 @@ private:
             }
         }
         return false;
+    }
+    void set_block_element(const sf::Vector2u& pos)
+    {
+        //delete old position and then set new one
+        if (!map->is_snake_at_pos(pos.x, pos.y - 1))
+            map->set_element(pos.x, pos.y - 1, GameState(State::none));
+        map->set_element(pos.x, pos.y, GameState(State::apple));
+    }
+    void connect_blocks(sf::Vector2u& pos, 
+                        size_t begin_y,
+                        FallingBlock* fb)
+    {
+        auto c = map->get_cell(pos.x, begin_y);
+        if (holds_alternative<GameState>(c))
+        {
+            auto obj = get<0>(c);
+            if (holds_alternative<State>(obj))
+            {
+                auto s = get<0>(obj);
+                if (s == State::apple)
+                {
+                    for (auto p : fb->get_poses())set_block_element(p);
+                }
+            }
+        }
     }
 
 
