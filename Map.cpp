@@ -45,3 +45,14 @@ stack<sf::Vector2u> Map::get_snake()
 	}
 	return snake_pieces_poses;
 }
+bool Map::is_snake_at_pos(size_t x, size_t y)
+{
+	auto cell = map->get_elem(x, y);
+	if (holds_alternative<GameState>(cell))
+	{
+		auto obj = get<0>(cell);
+		if (holds_alternative<SnakePiece*>(obj))
+			return true;
+	}
+	return false;
+}
