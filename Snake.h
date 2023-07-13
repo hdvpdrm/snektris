@@ -38,7 +38,7 @@ public:
 		Right
 	};
 private:
-	size_t length = 1;
+	int length = 1;
 	sf::Vector2u head_pos;
 	Direction dir;
 	int score = 0;
@@ -102,6 +102,7 @@ public:
 	}
 
 	int get_score() { return score; }
+	void decrease_length() { length--; }
 
 };
 
