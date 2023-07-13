@@ -56,3 +56,17 @@ bool Map::is_snake_at_pos(size_t x, size_t y)
 	}
 	return false;
 }
+bool Map::is_empty(size_t x, size_t y)
+{
+	auto cell = map->get_elem(x, y);
+	if (holds_alternative<GameState>(cell))
+	{
+		auto obj = get<0>(cell);
+		if (holds_alternative<State>(obj))
+		{
+			auto s = get<0>(obj);
+			if (s == State::none)return true;
+		}
+	}
+	return false;
+}
