@@ -15,18 +15,18 @@ void FallingBlock::generate_vertical_block()
 	int i = 0;
 	for (int y = 0; y > -4; --y)
 	{
-		poses[i] =  sf::Vector2u(x, y);
+		poses.push_back(sf::Vector2u(x, y));
 		++i;
 	}
 	
 }
 void FallingBlock::fall()
 {
-	auto last = poses[3];
-	if(last != DEAD_BLOCK)
-	for (int i = 0;i<4;++i)
+	for (int i = 0;i<poses.size();++i)
 	{
-		if(last.y+1 != 27)
+		if ((*(--poses.end())).y + 1 != 27)
+		{
 			poses[i].y += 1;
+		}
 	}
 }

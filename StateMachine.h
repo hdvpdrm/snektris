@@ -215,6 +215,7 @@ public:
             [&]()
             {
                 for (auto& block : falling_blocks)block->fall();
+                block_movement_clock.restart();
             });
         event_manager.add(move_blocks);
 
@@ -224,14 +225,13 @@ public:
                 for (auto it = falling_blocks.begin();it!=falling_blocks.end();++it)
                 {
                     auto fb = (*it);
-                    for (int i = 0;i<4;i++)
+                    for (auto pos:fb->get_poses())
                     {
-                        auto pos = fb->get_poses()[i];
-                        if(pos != DEAD_BLOCK)
                         if (pos.y >= 0)
                         {
                             //delete old position and then set new one
-                            map->set_element(pos.x, pos.y - 1, GameState(State::none));
+                            if(!map->is_snake_at_pos(pos.x,pos.y-1))
+                                map->set_element(pos.x, pos.y - 1, GameState(State::none));
                             map->set_element(pos.x, pos.y, GameState(State::apple));
                         }
                     }
@@ -319,10 +319,9 @@ private:
         for (auto it = falling_blocks.begin();it!=falling_blocks.end();++it)
         {
             auto block = *it;
-            for (int i = 0; i < 4; ++i)
+            int i = 0;
+            for (auto pos:block->get_poses())
             {
-                auto pos = block->get_poses()[i];
-                if(pos != DEAD_BLOCK)
                 if (pos == snake.get_head_pos())
                 {
                     block->del(i);
@@ -332,6 +331,7 @@ private:
                     }
                     return true;
                 }
+                i++;
             }
         }
         return false;
