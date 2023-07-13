@@ -41,6 +41,7 @@ private:
 	size_t length = 1;
 	sf::Vector2u head_pos;
 	Direction dir;
+	int score = 0;
 public:
 	Snake()
 	{
@@ -54,7 +55,10 @@ public:
 
 	sf::Vector2u get_head_pos() { return head_pos; }
 	size_t len() { return length; }
-	void grow() { length += 1; }
+	void grow() { 
+		length += 1; 
+		score += 1;
+	}
 	Direction get_dir() { return dir; }
 
 	void change_dir(Direction new_dir)
@@ -96,6 +100,8 @@ public:
 			break;
 		}
 	}
+
+	int get_score() { return score; }
 
 };
 

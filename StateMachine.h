@@ -5,7 +5,7 @@
 #include"Event.h"
 #include"SFML/Graphics.hpp"
 #include"FallingBlock.h"
-#include<iostream>
+#include"GameTimer.h"
 /*
     StateMachine.
     Simply it's just combination of events and data that is related to these events.
@@ -20,9 +20,13 @@ protected:
 	EventManager event_manager;
 	bool move_to_next = false;
 
-    stack<sf::Vector2u> snake_parts; //used for death
+    sf::Font font,label_font;
 public:
-	BaseStateMachine(){}
+	BaseStateMachine()
+    {
+        font.loadFromFile("assets/ARCADECLASSIC.TTF");
+        label_font.loadFromFile("assets/prstart.ttf");
+    }
 	virtual ~BaseStateMachine(){}
     
     virtual void render(sf::RenderWindow& window) = 0;
@@ -44,8 +48,13 @@ private:
     sf::Clock block_movement_clock;
 
 	Snake snake;
+    stack<sf::Vector2u> snake_parts; //used for death
+
 	Map* map = nullptr;
     list<FallingBlock*> falling_blocks;
+
+    Timer timer;
+    sf::Text time, length;
 public:
 	Game()
 	{
@@ -58,7 +67,14 @@ public:
         block_generator_clock.restart();
 
         falling_blocks.push_back(new FallingBlock);
+        
+        time.setFont(label_font);
+        time.setCharacterSize(18);
+        time.setPosition(sf::Vector2f(10.0f, 150.0f));
 
+        length.setFont(label_font);
+        length.setCharacterSize(18);
+        length.setPosition(sf::Vector2f(10.0f, 180.0f));
 
 
         //key processing
@@ -238,6 +254,19 @@ public:
                 }
             });
         event_manager.add(set_blocks);
+
+
+
+        ///////////TEXT EVENTS /////////////////////////////
+        BaseEvent* update_text = new SimpleEvent(INDEP, ALWAYS_RET_T,
+            [&]()
+            {
+                time.setString("time:"+timer.get_time());
+                length.setString("length:" + to_string(snake.len()+1));
+            });
+        event_manager.add(update_text);
+
+        ////////////////////////////////////////////
 	}
 	~Game()
 	{
@@ -306,6 +335,7 @@ public:
 
             }
         draw_border(window);
+        draw_text(window);
     }
 private:
     void draw_border(sf::RenderWindow& window)
@@ -313,7 +343,11 @@ private:
         border.setPosition(sf::Vector2f((2*delta)-8.0f, 0.0f));
         window.draw(border);
     }
-    
+    void draw_text(sf::RenderWindow& window)
+    {
+        window.draw(time);
+        window.draw(length);
+    }
     bool does_snake_eat_apple()
     {
         for (auto it = falling_blocks.begin();it!=falling_blocks.end();++it)
@@ -342,17 +376,15 @@ private:
 class Death:public BaseStateMachine
 {
 private:
-    sf::Font end_font;
     sf::Text title;
 public:
     Death()
     {
-        end_font.loadFromFile("assets/ARCADECLASSIC.TTF");
         title.setString("ATE    YOURSELF");
         title.setCharacterSize(64);
         title.setFillColor(sf::Color::White);
         title.setPosition(200.0f, 40.0f);
-        title.setFont(end_font);
+        title.setFont(font);
     }
     ~Death(){}
 
