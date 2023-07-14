@@ -6,6 +6,7 @@
 #include"SFML/Graphics.hpp"
 #include"TetrisBlock.h"
 #include"GameTimer.h"
+#include"FancyText.hpp"
 /*
     StateMachine.
     Simply it's just combination of events and data that is related to these events.
@@ -21,19 +22,33 @@ protected:
 	bool move_to_next = false;
 
     sf::Font font,label_font;
+
+    void* return_value = nullptr;
 public:
-	BaseStateMachine()
+	BaseStateMachine(void* return_value=nullptr)
     {
         font.loadFromFile("assets/ARCADECLASSIC.TTF");
         label_font.loadFromFile("assets/prstart.ttf");
+        return_value = return_value;
     }
 	virtual ~BaseStateMachine(){}
     
     virtual void render(sf::RenderWindow& window) = 0;
 	bool should_move_to_next() { return move_to_next; }
     EventManager& get_event_manager() { return event_manager; }
+
+    void* get_return_value() { return return_value; }
 };
 
+
+struct GameStatistic
+{
+    int snake_len;
+    string game_time;
+    GameStatistic(int snake_len,string game_time):snake_len(snake_len),game_time(game_time)
+    {}
+    ~GameStatistic(){}
+};
 class Game:public BaseStateMachine
 {
 private:
@@ -209,7 +224,6 @@ public:
                     {
                         auto pos = snake_parts.top();
                         snake_parts.pop();
-                        snake.decrease_length();
 
                         map->set_element(pos.x, pos.y, GameState(State::none));
                     }
@@ -219,6 +233,12 @@ public:
             });
         event_manager.add(process_snake_fading);
 
+        BaseEvent* set_game_stat = new SimpleEvent(AS, ALWAYS_RET_T,
+            [&]()
+            {
+                return_value = new GameStatistic(snake.len(), timer.get_time());
+            });
+        event_manager.add(set_game_stat);
 
         //events related to falling blocks
         BaseEvent* generate_falling_block = new SimpleEvent(INDEP, 
@@ -344,21 +364,38 @@ private:
 class Death:public BaseStateMachine
 {
 private:
-    sf::Text title;
+    sftk::FancyText title,snake_len, game_time;
 public:
-    Death()
+    Death(void* return_value):BaseStateMachine(return_value)
     {
-        title.setString("ATE    YOURSELF");
-        title.setCharacterSize(64);
-        title.setFillColor(sf::Color::White);
+        title = sftk::TextBuilder{ font }
+        << sftk::txt::size(60)
+        << "ATE" << sf::Color::Magenta << " YOURSELF";
         title.setPosition(200.0f, 40.0f);
-        title.setFont(font);
+
+        GameStatistic* stat = static_cast<GameStatistic*>(return_value);
+
+        snake_len = sftk::TextBuilder{ label_font }
+            << sftk::txt::size(24)
+            << "snake's " << sf::Color::Yellow << "length " << sf::Color::White
+            << "was " + to_string(stat->snake_len);
+        snake_len.setPosition(170.0f, 140.0f);
+
+        game_time = sftk::TextBuilder{ label_font }
+            << sftk::txt::size(24)
+            << "game time was " << sf::Color::Green << stat->game_time;
+        game_time.setPosition(180.0f, 180.0f);
+
+
+        delete stat;
     }
     ~Death(){}
 
     void render(sf::RenderWindow& window)
     {
         window.draw(title);
+        window.draw(snake_len);
+        window.draw(game_time);
     }
 };
 
@@ -394,9 +431,10 @@ public:
     {
         if (curr_type == StateMachineType::game)
         {
+            void* ret_value = curr_state_machine->get_return_value();
             delete curr_state_machine;
             curr_type = StateMachineType::death;
-            curr_state_machine = new Death;
+            curr_state_machine = new Death(ret_value);
         }
     }
     BaseStateMachine* get_current_state_machine()
