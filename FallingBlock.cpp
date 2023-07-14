@@ -2,47 +2,38 @@
 
 FallingBlock::FallingBlock()
 {
-	generate_vertical_block();
+
 }
 FallingBlock::~FallingBlock()
 {
 }
-void FallingBlock::generate_vertical_block()
+void FallingBlock::generate_vertical_block(Map* map)
 {
 	//first of all choose start x position, meanwhile y is always out of matrix
 	auto x = get_random_int(0, CELL_MAX);
 
-	int i = 0;
-	for (int y = 0; y > -4; --y)
+	for (int y = 0; y < 2; y++)
 	{
-		poses.push_back(sf::Vector2u(x, y));
-		++i;
-	}
-	
+		map->set_element(x,y,GameState(State::apple));
+	}	
 }
-void FallingBlock::fall()
+void FallingBlock::generate_horizontal_block(Map* map)
 {
-	if (can_move)
+	auto start_x = get_random_int(0, CELL_MAX-5);
+
+	for (int x = 0; x < 4; x++)
 	{
-		int i = 0;
-		while (i < poses.size())
-		{
-			poses[i].y += 1;
-			i++;
-		}
+		map->set_element(x + start_x, 0, GameState(State::apple));
 	}
-	else
+}
+void FallingBlock::generate(Map* map)
+{
+	std::vector < std::function<void(Map* map)>> generators =
 	{
-		int i = 0;
-		while (i < poses.size())
-		{
-			if (i + 1 < poses.size())
-			{
-				int dist = (int)poses[i].y - (int)poses[i+1].y;
-				if (dist > 1)
-					poses[i + 1].y += 1;
-			}
-			i++;
-		}
-	}
+		[](Map* map) { generate_vertical_block(map); },
+		[](Map* map) {generate_horizontal_block(map); }
+	};
+
+	auto i = get_random_int(0, generators.size() - 1);
+	generators[i](map);
 }

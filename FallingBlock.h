@@ -3,30 +3,18 @@
 #include"GetRandomNumber.h"
 #include"SFML/System/Vector2.hpp"
 #include"constants.h"
-#include<iostream>
-#include<vector>
+#include<functional>
+#include"Map.h"
 
-static const sf::Vector2i DEAD_BLOCK = sf::Vector2i(-1, -1);
 class FallingBlock
 {
-private:
-	void generate_vertical_block();
-	std::vector<sf::Vector2u> poses;
-	short del_counter = 0;
-
-	bool can_move = true;
+	static void generate_vertical_block(Map* map);
+	static void generate_horizontal_block(Map* map);
 public:
 	FallingBlock();
 	~FallingBlock();
 
-	void fall();
-	std::vector<sf::Vector2u> get_poses() { return poses; }
-	void del(int i)
-	{
-		poses.erase(poses.begin() + i);
-	}
-	bool time_to_die() { return del_counter == 3; }
-	void set_move_flag(bool flag) { can_move = flag; }
+	static void generate(Map* map);
 };
 
 
