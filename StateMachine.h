@@ -51,8 +51,6 @@ private:
     stack<sf::Vector2u> snake_parts; //used for death
 
 	Map* map = nullptr;
-    list<FallingBlock*> falling_blocks;
-
     Timer timer;
     sf::Text time, length;
 public:
@@ -65,9 +63,8 @@ public:
 
 		map = new Map(CELL_MAX, CELL_MAX, snake.get_head_pos());
         block_generator_clock.restart();
-
-        falling_blocks.push_back(new FallingBlock);
-        
+        FallingBlock::generate(map);
+   
         time.setFont(label_font);
         time.setCharacterSize(18);
         time.setPosition(sf::Vector2f(10.0f, 150.0f));
@@ -142,14 +139,14 @@ public:
             });
         event_manager.add(update);
 
-        BaseEvent* eat_apple = new SimpleEvent(INDEP,[&]()
+        BaseEvent* eat_apple = new SimpleEvent(INDEP, [&]()
             { return does_snake_eat_apple(); },
             [&]()
             {
                 snake.grow();
             });
         event_manager.add(eat_apple);
-
+        
         auto is_dead = [&](const sf::Vector2u& a, const sf::Vector2u& b)
         {return a == b; };
         BaseEvent* check_death = new MapEvent(DEP, ALWAYS_RET_T,
@@ -218,61 +215,50 @@ public:
             },
             [&]()
             {
-                falling_blocks.push_back(new FallingBlock);
+                FallingBlock::generate(map);
                 block_generator_clock.restart();
             });
         event_manager.add(generate_falling_block);
 
-        BaseEvent* move_blocks = new SimpleEvent(INDEP, [&]()
-            {
-                if (block_movement_clock.getElapsedTime().asSeconds() > 1.0f and
-                    !falling_blocks.empty())return true;
-                else return false;
-            },
+        BaseEvent* move_blocks = new SimpleEvent(INDEP,
+            [&]() { return  block_movement_clock.getElapsedTime().asSeconds() > 1.0f; },
             [&]()
             {
-                for (auto& block : falling_blocks)block->fall();
+                vector<sf::Vector2u> moved;
+                for (int y : views::iota(0, CELL_MAX))
+                    for (int x : views::iota(0, CELL_MAX))
+                    {
+                        if (map->is_apple(x, y)       and
+                            std::find(moved.begin(),moved.end(),sf::Vector2u(x,y)) == moved.end())
+                        {
+                            if (map->is_empty(x, y + 1))
+                            {
+                                if (y+1 != CELL_MAX-1)
+                                {
+                                    map->set_element(x, y, GameState(State::none));
+                                    map->set_element(x, y + 1, GameState(State::apple));
+                                    moved.push_back(sf::Vector2u(x, y + 1));
+                                }
+                            }
+                            else
+                            {
+                                auto free_y = find_empty_space(x, y + 1);
+                                if (free_y != -1)
+                                {
+                                    if (free_y != CELL_MAX-1)
+                                    {
+                                        map->set_element(x, y, GameState(State::none));
+                                        map->set_element(x, free_y, GameState(State::apple));
+                                        moved.push_back(sf::Vector2u(x, free_y));
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
                 block_movement_clock.restart();
             });
         event_manager.add(move_blocks);
-
-        BaseEvent* set_blocks = new SimpleEvent(INDEP, ALWAYS_RET_T,
-            [&]()
-            {
-                for (auto it = falling_blocks.begin();it!=falling_blocks.end();++it)
-                {
-                    auto fb = (*it);
-                    for (auto pos : fb->get_poses())
-                    {
-
-                        //if it reaches the bottom move all down and break
-                        auto begin_y = fb->get_poses()[0].y + 1;
-                        if (begin_y == CELL_MAX)
-                        {
-                            for(auto p: fb->get_poses())set_block_element(p);
-                            fb->set_move_flag(false);
-                            break;
-                        }
-
-                        if (map->is_empty(pos.x, begin_y))
-                        {
-                            fb->set_move_flag(true);
-                            if (pos.y >= 0)
-                            {
-                                set_block_element(pos);
-                            }
-                        }
-                        else
-                        {
-                            connect_blocks(pos, begin_y, fb);
-                            fb->set_move_flag(false);
-                        }
-                    }
-                }
-            });
-        event_manager.add(set_blocks);
-
-
 
         ///////////TEXT EVENTS /////////////////////////////
         BaseEvent* update_text = new SimpleEvent(INDEP, ALWAYS_RET_T,
@@ -318,38 +304,27 @@ public:
                 block.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + delta * 2, (float)y * CELL_SIZE));
                 window.draw(block);
 
-                auto cell = map->get_cell(x, y);
-                if (holds_alternative<GameState>(cell))
+
+                if (map->is_apple(x, y))
                 {
-                    auto obj = get<0>(cell);
-                    if (holds_alternative<State>(obj))
-                    {
-                        auto obj_type = get<0>(obj);
-                        if (obj_type == State::apple)
-                        {
-                            apple.setPosition(sf::Vector2f(((float)x * CELL_SIZE)+delta*2, (float)y * CELL_SIZE));
-                            window.draw(apple);
-                        }
-                        //if it's none just do nothing
-                    }
+                    apple.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + delta * 2, (float)y * CELL_SIZE));
+                    window.draw(apple);
+                }
+                if (map->is_snake_at_pos(x, y))
+                {
+                    auto piece = get<1>(get<0>(map->get_cell(x, y)));
+                    auto diff = (snake.len() - piece->get_val()) * 10;
+
+                    auto color = sf::Color();
+                    if (diff < 220)color = sf::Color(255 - diff, 255 - diff, 255 - diff, 255);
                     else
                     {
-                        auto* piece = get<1>(obj);
-                        auto diff = (snake.len() - piece->get_val())*10;
-
-
-                        auto color = sf::Color();
-                        if (diff < 220)color = sf::Color(255 - diff, 255 - diff, 255-diff, 255);
-                        else
-                        {
-                            color = sf::Color(25, 25, 25, 255);
-                        }
-                        snake_head.setFillColor(color);
-                        snake_head.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + delta*2, (float)y * CELL_SIZE));
-                        window.draw(snake_head);
+                        color = sf::Color(25, 25, 25, 255);
                     }
+                    snake_head.setFillColor(color);
+                    snake_head.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + delta * 2, (float)y * CELL_SIZE));
+                    window.draw(snake_head);
                 }
-
             }
         draw_border(window);
         draw_text(window);
@@ -365,55 +340,22 @@ private:
         window.draw(time);
         window.draw(length);
     }
+
+    int find_empty_space(int x,int begin)
+    {
+        int y = begin + 1;
+        while (y != CELL_MAX-1)
+        {
+            if (map->is_empty(x, y)) return y;
+            else y += 1;
+        }
+        return -1;
+    }
+
     bool does_snake_eat_apple()
     {
-        for (auto it = falling_blocks.begin();it!=falling_blocks.end();++it)
-        {
-            auto block = *it;
-            int i = 0;
-            for (auto pos:block->get_poses())
-            {
-                if (pos == snake.get_head_pos())
-                {
-                    block->del(i);
-                    if (block->time_to_die())
-                    {
-                        falling_blocks.erase(it);
-                    }
-                    return true;
-                }
-                i++;
-            }
-        }
-        return false;
+        return map->is_apple(snake.get_head_pos().x, snake.get_head_pos().y);
     }
-    void set_block_element(const sf::Vector2u& pos)
-    {
-        //delete old position and then set new one
-        if (!map->is_snake_at_pos(pos.x, pos.y - 1))
-            map->set_element(pos.x, pos.y - 1, GameState(State::none));
-        map->set_element(pos.x, pos.y, GameState(State::apple));
-    }
-    void connect_blocks(sf::Vector2u& pos, 
-                        size_t begin_y,
-                        FallingBlock* fb)
-    {
-        auto c = map->get_cell(pos.x, begin_y);
-        if (holds_alternative<GameState>(c))
-        {
-            auto obj = get<0>(c);
-            if (holds_alternative<State>(obj))
-            {
-                auto s = get<0>(obj);
-                if (s == State::apple)
-                {
-                    for (auto p : fb->get_poses())set_block_element(p);
-                }
-            }
-        }
-    }
-
-
 };
 class Death:public BaseStateMachine
 {
