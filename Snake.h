@@ -42,6 +42,8 @@ private:
 	sf::Vector2u head_pos;
 	Direction dir;
 	int score = 0;
+
+	int apples_till_grow = 4;
 public:
 	Snake()
 	{
@@ -56,8 +58,13 @@ public:
 	sf::Vector2u get_head_pos() { return head_pos; }
 	int len() { return length; }
 	void grow() { 
-		length += 1; 
-		score += 1;
+		apples_till_grow--;
+		if (apples_till_grow == 0)
+		{
+			length += 1;
+			score += 1;
+			apples_till_grow = 4;
+		}
 	}
 	Direction get_dir() { return dir; }
 
@@ -103,7 +110,7 @@ public:
 
 	int get_score() { return score; }
 	void decrease_length() { --length; }
-
+	int get_apples_till_grow() { return apples_till_grow; }
 };
 
 #endif //SNAKE_H

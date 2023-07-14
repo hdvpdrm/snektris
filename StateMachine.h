@@ -53,7 +53,7 @@ private:
     
 	Map* map = nullptr;
     Timer timer;
-    sf::Text time, length;
+    sf::Text time, length, apples_to_grow;
     bool dying = false;
 public:
 	Game()
@@ -74,6 +74,10 @@ public:
         length.setFont(label_font);
         length.setCharacterSize(18);
         length.setPosition(sf::Vector2f(10.0f, 180.0f));
+
+        apples_to_grow.setFont(label_font);
+        apples_to_grow.setCharacterSize(16);
+        apples_to_grow.setPosition(sf::Vector2f(10.0f, 220.0f));
 
 
         //key processing
@@ -259,6 +263,8 @@ public:
                 auto len = snake.len() + 1;
                 if (dying)len = snake_parts.size();
                 length.setString("length:" + to_string(len));
+
+                apples_to_grow.setString("till grow:" + to_string(snake.get_apples_till_grow()));
             });
         event_manager.add(update_text);
 
@@ -332,6 +338,7 @@ private:
     {
         window.draw(time);
         window.draw(length);
+        window.draw(apples_to_grow);
     }
 };
 class Death:public BaseStateMachine
