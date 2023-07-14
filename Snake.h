@@ -102,7 +102,7 @@ public:
 	}
 
 	int get_score() { return score; }
-	void decrease_length() { length--; }
+	void decrease_length() { --length; }
 
 };
 
