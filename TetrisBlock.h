@@ -27,6 +27,15 @@ protected:
 		for (auto& pos : poses)
 			map->set_element(pos.x, pos.y, GameState(State::apple));
 	}
+
+	bool check_intersects_snake(Map* map)
+	{
+		for (auto& pos : poses)
+		{
+			if (map->is_snake_at_pos(pos.x, pos.y))return true;
+		}
+		return false;
+	}
 public:
 	TetrisBLock(){}
 	virtual ~TetrisBLock(){}
@@ -64,6 +73,8 @@ private:
 	{
 		for (auto& pos : poses)
 		{
+			if (check_intersects_snake(map))return false;
+
 			auto down = sf::Vector2u(pos.x,pos.y+1);
 			if (down.y != CELL_MAX - 1)
 			{
@@ -107,6 +118,8 @@ private:
 	}
 	bool can_move(Map* map)
 	{
+		if (check_intersects_snake(map))return false;
+
 		auto last = find_last();
 		auto down = sf::Vector2u(last.x, last.y + 1);
 		if (down.y != CELL_MAX - 1)
