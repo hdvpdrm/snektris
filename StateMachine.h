@@ -143,7 +143,7 @@ public:
 
         BaseEvent* eat_apple = new SimpleEvent(INDEP, [&]()
             {
-                for (auto& block : tetris_blocks)
+                for (auto& block:tetris_blocks)
                 {
                     if (block->is_eaten(snake.get_head_pos()))
                         return true;
@@ -230,27 +230,26 @@ public:
             });
         event_manager.add(generate_falling_block);
 
-        BaseEvent* move_blocks = new SimpleEvent(INDEP,
+        BaseEvent* update_blocks = new SimpleEvent(INDEP,
             [&]()
             {
                 return block_movement_clock.getElapsedTime().asSeconds() > 1.0f;
             },
             [&]()
             {
+                tetris_blocks.erase(
+                    std::remove_if(
+                        tetris_blocks.begin(),
+                        tetris_blocks.end(),
+                        [](TetrisBLock* b) { return b->should_die(); }
+                    ),
+                    tetris_blocks.end()
+                );
                 for (auto& block : tetris_blocks)block->move(map);
                 block_movement_clock.restart();
             });
-        event_manager.add(move_blocks);
+        event_manager.add(update_blocks);
 
-        BaseEvent* clear_dead_blocks = new SimpleEvent(INDEP, ALWAYS_RET_T,
-            [&]()
-            {
-                for (auto it = tetris_blocks.begin(); it != tetris_blocks.end(); ++it)
-                {
-                    if ((*it)->should_die())it = tetris_blocks.erase(it);
-                }
-            });
-        event_manager.add(clear_dead_blocks);
 
         ///////////TEXT EVENTS /////////////////////////////
         BaseEvent* update_text = new SimpleEvent(INDEP, ALWAYS_RET_T,
