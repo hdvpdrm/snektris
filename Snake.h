@@ -109,7 +109,6 @@ public:
 	}
 
 	int get_score() { return score; }
-	void decrease_length() { --length; }
 	int get_apples_till_grow() { return apples_till_grow; }
 };
 
