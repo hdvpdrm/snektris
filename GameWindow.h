@@ -9,7 +9,7 @@ class GameWindow: sf::RenderWindow
 
 	//use static because it provides ability to make field constexpr
 	static constexpr int WINDOW_WIDTH = (CELL_MAX * CELL_SIZE)+(int)delta*2;
-	static constexpr int WINDOW_HEIGHT = CELL_MAX * CELL_SIZE;
+	static constexpr int WINDOW_HEIGHT = (CELL_MAX * CELL_SIZE)-CELL_SIZE;
 
 public:
 	GameWindow();
