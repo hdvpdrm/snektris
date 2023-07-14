@@ -4,7 +4,7 @@
 #include"Map.h"
 #include"Event.h"
 #include"SFML/Graphics.hpp"
-#include"FallingBlock.h"
+#include"TetrisBlock.h"
 #include"GameTimer.h"
 /*
     StateMachine.
@@ -49,10 +49,12 @@ private:
 
 	Snake snake;
     stack<sf::Vector2u> snake_parts; //used for death
-
+    vector<TetrisBLock*> tetris_blocks;
+    
 	Map* map = nullptr;
     Timer timer;
     sf::Text time, length;
+    bool dying = false;
 public:
 	Game()
 	{
@@ -63,7 +65,7 @@ public:
 
 		map = new Map(CELL_MAX, CELL_MAX, snake.get_head_pos());
         block_generator_clock.restart();
-        FallingBlock::generate(map);
+        tetris_blocks.push_back(generate_tetris_block());
    
         time.setFont(label_font);
         time.setCharacterSize(18);
@@ -140,7 +142,14 @@ public:
         event_manager.add(update);
 
         BaseEvent* eat_apple = new SimpleEvent(INDEP, [&]()
-            { return does_snake_eat_apple(); },
+            {
+                for (auto& block : tetris_blocks)
+                {
+                    if (block->is_eaten(snake.get_head_pos()))
+                        return true;
+                }
+                return false;
+            },
             [&]()
             {
                 snake.grow();
@@ -189,6 +198,7 @@ public:
 
         BaseEvent* process_snake_fading = new SimpleEvent(AS, ALWAYS_RET_T,
             [&]() {
+                dying = true;
                 if (clock.getElapsedTime().asSeconds() > 0.1f)
                 {
                     if (!snake_parts.empty())
@@ -215,57 +225,41 @@ public:
             },
             [&]()
             {
-                FallingBlock::generate(map);
+                tetris_blocks.push_back(generate_tetris_block());
                 block_generator_clock.restart();
             });
         event_manager.add(generate_falling_block);
 
         BaseEvent* move_blocks = new SimpleEvent(INDEP,
-            [&]() { return  block_movement_clock.getElapsedTime().asSeconds() > 1.0f; },
             [&]()
             {
-                vector<sf::Vector2u> moved;
-                for (int y : views::iota(0, CELL_MAX))
-                    for (int x : views::iota(0, CELL_MAX))
-                    {
-                        if (map->is_apple(x, y)       and
-                            std::find(moved.begin(),moved.end(),sf::Vector2u(x,y)) == moved.end())
-                        {
-                            if (map->is_empty(x, y + 1))
-                            {
-                                if (y+1 != CELL_MAX-1)
-                                {
-                                    map->set_element(x, y, GameState(State::none));
-                                    map->set_element(x, y + 1, GameState(State::apple));
-                                    moved.push_back(sf::Vector2u(x, y + 1));
-                                }
-                            }
-                            else
-                            {
-                                auto free_y = find_empty_space(x, y + 1);
-                                if (free_y != -1)
-                                {
-                                    if (free_y != CELL_MAX-1)
-                                    {
-                                        map->set_element(x, y, GameState(State::none));
-                                        map->set_element(x, free_y, GameState(State::apple));
-                                        moved.push_back(sf::Vector2u(x, free_y));
-                                    }
-                                }
-                            }
-                            
-                        }
-                    }
+                return block_movement_clock.getElapsedTime().asSeconds() > 1.0f;
+            },
+            [&]()
+            {
+                for (auto& block : tetris_blocks)block->move(map);
                 block_movement_clock.restart();
             });
         event_manager.add(move_blocks);
+
+        BaseEvent* clear_dead_blocks = new SimpleEvent(INDEP, ALWAYS_RET_T,
+            [&]()
+            {
+                for (auto it = tetris_blocks.begin(); it != tetris_blocks.end(); ++it)
+                {
+                    if ((*it)->should_die())it = tetris_blocks.erase(it);
+                }
+            });
+        event_manager.add(clear_dead_blocks);
 
         ///////////TEXT EVENTS /////////////////////////////
         BaseEvent* update_text = new SimpleEvent(INDEP, ALWAYS_RET_T,
             [&]()
             {
                 time.setString("time:"+timer.get_time());
-                length.setString("length:" + to_string(snake.len()+1));
+                auto len = snake.len() + 1;
+                if (dying)len = snake_parts.size();
+                length.setString("length:" + to_string(len));
             });
         event_manager.add(update_text);
 
@@ -339,22 +333,6 @@ private:
     {
         window.draw(time);
         window.draw(length);
-    }
-
-    int find_empty_space(int x,int begin)
-    {
-        int y = begin + 1;
-        while (y != CELL_MAX-1)
-        {
-            if (map->is_empty(x, y)) return y;
-            else y += 1;
-        }
-        return -1;
-    }
-
-    bool does_snake_eat_apple()
-    {
-        return map->is_apple(snake.get_head_pos().x, snake.get_head_pos().y);
     }
 };
 class Death:public BaseStateMachine

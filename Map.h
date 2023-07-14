@@ -48,6 +48,7 @@ public:
 	stack<sf::Vector2u> get_snake();
 	bool is_snake_at_pos(size_t x, size_t y);
 	bool is_empty(size_t x, size_t y);
+	bool is_apple(size_t x, size_t y);
 };
 
 #endif //MAP_H

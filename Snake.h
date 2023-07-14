@@ -54,7 +54,7 @@ public:
 	~Snake() {}
 
 	sf::Vector2u get_head_pos() { return head_pos; }
-	size_t len() { return length; }
+	int len() { return length; }
 	void grow() { 
 		length += 1; 
 		score += 1;

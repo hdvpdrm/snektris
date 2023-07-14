@@ -70,3 +70,17 @@ bool Map::is_empty(size_t x, size_t y)
 	}
 	return false;
 }
+bool Map::is_apple(size_t x, size_t y)
+{
+	auto cell = map->get_elem(x, y);
+	if (holds_alternative<GameState>(cell))
+	{
+		auto obj = get<0>(cell);
+		if (holds_alternative<State>(obj))
+		{
+			auto s = get<0>(obj);
+			if (s == State::apple)return true;
+		}
+	}
+	return false;
+}
