@@ -383,7 +383,7 @@ public:
 
         game_time = sftk::TextBuilder{ label_font }
             << sftk::txt::size(24)
-            << "game time was " << sf::Color::Green << stat->game_time;
+            << "game time was " << sf::Color::Green << stat->game_time<<"m";
         game_time.setPosition(180.0f, 180.0f);
 
 
