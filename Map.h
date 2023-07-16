@@ -18,7 +18,7 @@ About game state:
   so it's obvious to use enum clas, but snake part is more diffucult, so it's represented
   as class.
 */
-extern enum class State
+enum class State
 {
 	none,
 	apple
