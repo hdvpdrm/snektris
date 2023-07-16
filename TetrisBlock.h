@@ -36,6 +36,8 @@ protected:
 		}
 		return false;
 	}
+
+	bool being_eaten = false;
 public:
 	TetrisBLock(){}
 	virtual ~TetrisBLock(){}
@@ -57,10 +59,13 @@ public:
 		{
 			if ((*it) == snake_head)
 			{
+				being_eaten = true;
 				it = poses.erase(it);
 				return true;
 			}
 		}
+
+		being_eaten = false;
 		return false;
 	}
 	bool should_die() { return poses.empty(); }
@@ -73,6 +78,7 @@ private:
 	{
 		for (auto& pos : poses)
 		{
+			if (being_eaten) return false;
 			if (check_intersects_snake(map))return false;
 
 			auto down = sf::Vector2u(pos.x,pos.y+1);
@@ -118,6 +124,7 @@ private:
 	}
 	bool can_move(Map* map)
 	{
+		if (being_eaten) return false;
 		if (check_intersects_snake(map))return false;
 
 		auto last = find_last();
