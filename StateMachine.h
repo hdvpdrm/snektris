@@ -7,6 +7,7 @@
 #include"TetrisBlock.h"
 #include"GameTimer.h"
 #include"FancyText.hpp"
+#include<array>
 /*
     StateMachine.
     Simply it's just combination of events and data that is related to these events.
@@ -61,6 +62,7 @@ private:
     sf::Clock clock;
     sf::Clock block_generator_clock;
     sf::Clock block_movement_clock;
+    sf::Clock color_changer_clock;
 
 	Snake snake;
     stack<sf::Vector2u> snake_parts; //used for death
@@ -68,19 +70,31 @@ private:
     
 	Map* map = nullptr;
     Timer timer;
-    sf::Text time, length, apples_to_grow;
+    sf::Text time, length, apples_to_grow, eat,move;
     bool dying = false;
+
+    sf::Color color_to_eat;
+    array<sf::Color, 3> colors_to_move;
+
+    //represents color on left side panel
+    sf::RectangleShape shape_to_eat; 
+    array<sf::RectangleShape, 3> shapes_to_move;
+
 public:
 	Game()
 	{
+        color_changer_clock.restart();
+        block_generator_clock.restart();
+        block_movement_clock.restart();
+        clock.restart();
+
         apple.setFillColor(sf::Color::Red);
         snake_head.setFillColor(sf::Color::Green);
         border.setFillColor(sf::Color(229,185,242,255));
         block.setFillColor(sf::Color(68,55,72,255));
 
 		map = new Map(CELL_MAX, CELL_MAX, snake.get_head_pos());
-        block_generator_clock.restart();
-        tetris_blocks.push_back(generate_tetris_block());
+        tetris_blocks.push_back(generate_tetris_block(color_to_eat));
    
         time.setFont(label_font);
         time.setCharacterSize(18);
@@ -94,6 +108,28 @@ public:
         apples_to_grow.setCharacterSize(16);
         apples_to_grow.setPosition(sf::Vector2f(10.0f, 220.0f));
 
+        eat.setFont(label_font);
+        eat.setCharacterSize(16);
+        eat.setString("eat:");
+        eat.setPosition(sf::Vector2f(10.0f, 300.0f));
+
+        move.setFont(label_font);
+        move.setCharacterSize(16);
+        move.setString("move:");
+        move.setPosition(sf::Vector2f(10.0f, 340.0f));
+
+        shape_to_eat.setSize(sf::Vector2f(16.0f, 16.0f));
+        shape_to_eat.setPosition(sf::Vector2f(80.0f, 301.0f));
+
+        auto x = 90.0f;
+        for (auto& s : shapes_to_move)
+        {
+            s.setSize(sf::Vector2f(16.0f, 16.0f));
+            s.setPosition(sf::Vector2f(x, 341.0f));
+            x += 20.0f;
+        }
+
+        generate_color_to_eat();
 
         //key processing
         BaseEvent* move_left = new SimpleEvent(INDEP, []() {
@@ -249,7 +285,7 @@ public:
             },
             [&]()
             {
-                tetris_blocks.push_back(generate_tetris_block());
+                tetris_blocks.push_back(generate_tetris_block(color_to_eat));
                 block_generator_clock.restart();
             });
         event_manager.add(generate_falling_block);
@@ -273,6 +309,19 @@ public:
                 block_movement_clock.restart();
             });
         event_manager.add(update_blocks);
+
+
+        BaseEvent* change_color = new SimpleEvent(INDEP,
+            [&]()
+            {
+                return color_changer_clock.getElapsedTime().asSeconds() > 30.0f;
+            },
+            [&]()
+            {
+                generate_color_to_eat();
+                color_changer_clock.restart();
+            });
+        event_manager.add(change_color);
 
 
         ///////////TEXT EVENTS /////////////////////////////
@@ -325,7 +374,9 @@ public:
 
 
                 if (map->is_apple(x, y))
-                {
+                {               
+                    auto type = map->get_apple_type(x, y);
+                    apple.setFillColor(choose_color(type));
                     apple.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + delta * 2, (float)y * CELL_SIZE));
                     window.draw(apple);
                 }
@@ -345,8 +396,10 @@ public:
                     window.draw(snake_head);
                 }
             }
+
         draw_border(window);
         draw_text(window);
+        draw_shapes(window);
     }
 private:
     void draw_border(sf::RenderWindow& window)
@@ -359,6 +412,41 @@ private:
         window.draw(time);
         window.draw(length);
         window.draw(apples_to_grow);
+        window.draw(eat);
+        window.draw(move);
+    }
+    void draw_shapes(sf::RenderWindow& window)
+    {
+        window.draw(shape_to_eat);
+        for (auto& s : shapes_to_move)window.draw(s);
+    }
+
+    void generate_color_to_eat()
+    {
+        int color = get_random_int(0, colors.size()-1);
+        color_to_eat = colors[color];
+        shape_to_eat.setFillColor(color_to_eat);
+
+        int n = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            if (i != color)
+            {
+                colors_to_move[n] = colors[i];
+                shapes_to_move[n].setFillColor(colors_to_move[n]);
+                n++;
+            }
+        }
+    }
+    sf::Color choose_color(State s)
+    {
+        switch (s)
+        {
+        case State::green_apple: return sf::Color::Green; break;
+        case State::magenta_apple: return sf::Color::Magenta; break;
+        case State::yellow_apple: return sf::Color::Yellow; break;
+        case State::red_apple: return sf::Color::Red; break;
+        }
     }
 };
 class Death:public BaseStateMachine

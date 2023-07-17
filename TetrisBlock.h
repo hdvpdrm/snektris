@@ -26,7 +26,7 @@ protected:
 	virtual void set(Map* map)
 	{
 		for (auto& pos : poses)
-			map->set_element(pos.x, pos.y, GameState(State::apple));
+			map->set_element(pos.x, pos.y, GameState(cur_state));
 	}
 
 	bool check_intersects_snake(Map* map)
@@ -39,8 +39,37 @@ protected:
 	}
 
 	bool being_eaten = false;
+	bool eatable = false;
+private:
+	State cur_state;
+	State choose_type(const sf::Color& color)
+	{
+		if (color == sf::Color::Green)   return State::green_apple;
+		if (color == sf::Color::Yellow)  return State::yellow_apple;
+		if (color == sf::Color::Magenta) return State::magenta_apple;
+		if (color == sf::Color::Red)     return State::red_apple;
+	}
 public:
-	TetrisBLock(){}
+	TetrisBLock(const sf::Color& color_to_eat)
+	{
+		int rand_n = get_random_int(0, 6);
+		eatable = true ? rand_n > 3: false;
+		if (eatable)
+		{
+			cur_state = choose_type(color_to_eat);
+		}
+		else
+		{
+			//exlude color_to_eat
+			vector<sf::Color> colors_to_move;
+			std::copy_if(colors.begin(), colors.end(), back_inserter(colors_to_move),
+				[&](sf::Color color) { return color != color_to_eat; });
+
+			int rand_n = get_random_int(0, colors_to_move.size() - 1);
+			cur_state = choose_type(colors_to_move[rand_n]);
+		}
+		
+	}
 	virtual ~TetrisBLock(){}
 
 	void move(Map* map)
@@ -70,6 +99,7 @@ public:
 		return false;
 	}
 	bool should_die() { return poses.empty(); }
+	bool is_eatable() { return eatable; }
 };
 
 class HorizontalBlock : public TetrisBLock
@@ -104,7 +134,7 @@ private:
 		}
 	}
 public:
-	HorizontalBlock()
+	HorizontalBlock(const sf::Color& color_to_eat):TetrisBLock(color_to_eat)
 	{
 		generate();
 	}
@@ -150,7 +180,10 @@ private:
 		}
 	}
 public:
-	VerticalBlock() { generate(); }
+	VerticalBlock(const sf::Color& color_to_eat) :TetrisBLock(color_to_eat)
+	{ 
+		generate(); 
+	}
 	~VerticalBlock(){}
 
 };
@@ -178,7 +211,12 @@ protected:
 
 		auto left = std::find(poses.begin(), poses.end(), left_last);
 		if (left == poses.end())
-			return sf::Vector2u(-1, -1);
+		{
+			left_last = sf::Vector2u(right_last.x - 1, right_last.y);
+			left = std::find(poses.begin(), poses.end(), left_last);
+			if (left == poses.end())
+				return sf::Vector2u(-1, -1);
+		}
 		else return *left;
 	}
 	virtual bool can_move(Map* map)
@@ -220,7 +258,7 @@ protected:
 		}
 	}
 public:
-	ZigZagBlock()
+	ZigZagBlock(const sf::Color& color_to_eat) :TetrisBLock(color_to_eat)
 	{
 		generate();
 	}
@@ -276,7 +314,7 @@ private:
 		}
 	}
 public:
-	SquareBlock() 
+	SquareBlock(const sf::Color& color_to_eat):TetrisBLock(color_to_eat)
 	{
 		generate();
 	}
@@ -284,16 +322,16 @@ public:
 	{}
 };
 
-static const std::vector<std::function<TetrisBLock* ()>> generators =
+static const std::vector<std::function<TetrisBLock*(const sf::Color& color_to_eat)>> generators =
 {
-	[]() { return new HorizontalBlock; },
-	[]() { return new VerticalBlock; },
-	[]() { return new ZigZagBlock; },
-	[]() { return new SquareBlock; }
+	[](const sf::Color& color_to_eat) { return new HorizontalBlock(color_to_eat); },
+	[](const sf::Color& color_to_eat) { return new VerticalBlock(color_to_eat); },
+	[](const sf::Color& color_to_eat) { return new ZigZagBlock(color_to_eat); },
+	[](const sf::Color& color_to_eat) { return new SquareBlock(color_to_eat); }
 };
-static TetrisBLock* generate_tetris_block()
+static TetrisBLock* generate_tetris_block(const sf::Color& color_to_eat)
 {
 	int type = get_random_int(0, generators.size()-1);
-	return generators[type]();
+	return generators[type](color_to_eat);
 }
 #endif

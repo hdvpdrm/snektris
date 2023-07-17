@@ -21,7 +21,10 @@ About game state:
 enum class State
 {
 	none,
-	apple
+	red_apple,
+	yellow_apple,
+	green_apple,
+	magenta_apple
 };
 typedef variant<State,SnakePiece*> GameState;
 typedef variant<GameState, void*> cell;
@@ -49,6 +52,7 @@ public:
 	bool is_snake_at_pos(size_t x, size_t y);
 	bool is_empty(size_t x, size_t y);
 	bool is_apple(size_t x, size_t y);
+	State get_apple_type(size_t x, size_t y);
 };
 
 #endif //MAP_H
