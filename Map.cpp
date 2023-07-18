@@ -98,3 +98,11 @@ State Map::get_apple_type(size_t x, size_t y)
 	}
 	return State::none;
 }
+void Map::apply_procedure(const function<void(size_t x, size_t y)>& proc)
+{
+	for (int y : views::iota(0, (int)map->get_height()))
+		for (int x : view::iota(0, (int)map->get_width()))
+		{
+			proc(x, y);
+		}
+}

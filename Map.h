@@ -5,6 +5,7 @@
 #include"Snake.h"
 #include<stack>
 #include <algorithm>
+#include<functional>
 namespace view = ranges::views;
 
 /*
@@ -53,6 +54,8 @@ public:
 	bool is_empty(size_t x, size_t y);
 	bool is_apple(size_t x, size_t y);
 	State get_apple_type(size_t x, size_t y);
+
+	void apply_procedure(const function<void(size_t x, size_t y)>& proc);
 };
 
 #endif //MAP_H
