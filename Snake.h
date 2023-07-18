@@ -2,7 +2,7 @@
 #define SNAKE_H
 #include"SFML/System/Vector2.hpp"
 #include"GetRandomNumber.h"
-#include"constants.h"
+#include"MovebaleObject.h"
 
 /*
 	Snake is discrete object that is represented by
@@ -29,16 +29,8 @@ public:
 //this class implements functionality of snake
 class Snake
 {
-public:
-	enum class Direction
-	{
-		Up,
-		Down,
-		Left,
-		Right
-	};
 private:
-	int length = 1;
+	int length = 2;
 	sf::Vector2u head_pos;
 	Direction dir;
 	int score = 0;
@@ -80,36 +72,22 @@ public:
 		if (check1 or check2 or check3 or check4)
 			dir = new_dir;	
 	}
-	void move()
+	sf::Vector2u move()
 	{
-		switch (dir)
-		{
-		case Direction::Down:
-			//if it reaches the bottom, then it teleports to the top
-			//otherwise it just moves down
-			if (head_pos.y == CELL_MAX-1) head_pos = sf::Vector2u(head_pos.x, 0);
-			else head_pos = sf::Vector2u(head_pos.x, head_pos.y + 1);
-			break;
-		case Direction::Up:
-			//if it reaches the top, then it teleports to the bottom
-			//otherswise it moves up
-			if (head_pos.y == 0) head_pos = sf::Vector2u(head_pos.x, CELL_MAX-1);
-			else head_pos = sf::Vector2u(head_pos.x, head_pos.y - 1);
-			break;
-		case Direction::Left:
-			//similar conception of movement
-			if (head_pos.x == 0) head_pos = sf::Vector2u(CELL_MAX-1, head_pos.y);
-			else head_pos = sf::Vector2u(head_pos.x - 1, head_pos.y);
-			break;
-		case Direction::Right:
-			if (head_pos.x == CELL_MAX-1) head_pos = sf::Vector2u(0, head_pos.y);
-			else head_pos = sf::Vector2u(head_pos.x + 1, head_pos.y);
-			break;
-		}
+		return move_point(head_pos, dir);
+	}
+	void update_head_pos()
+	{
+		head_pos = move();
 	}
 
 	int get_score() { return score; }
 	int get_apples_till_grow() { return apples_till_grow; }
+
+	sf::Vector2u get_next_pos()
+	{
+		return move_point(head_pos, dir);
+	}
 };
 
 #endif //SNAKE_H
