@@ -11,35 +11,15 @@ class TetrisBLock
 {
 protected:
 	std::vector<sf::Vector2u> poses;
-	virtual bool can_move(Map* map) = 0;
-	
 	virtual void update()
 	{
 		for (int i = 0; i < poses.size(); i++)
 			poses[i].y += 1;
 	}
-	virtual void clear(Map* map)
-	{
-		for (auto& pos : poses)
-			map->set_element(pos.x, pos.y, GameState(State::none));
-	}
-	virtual void set(Map* map)
-	{
-		for (auto& pos : poses)
-			map->set_element(pos.x, pos.y, GameState(cur_state));
-	}
-
-	bool check_intersects_snake(Map* map)
-	{
-		for (auto& pos : poses)
-		{
-			if (map->is_snake_at_pos(pos.x, pos.y))return true;
-		}
-		return false;
-	}
-
+	
 	bool being_eaten = false;
 	bool eatable = false;
+	bool is_attached_to_snake = false;
 private:
 	State cur_state;
 	State choose_type(const sf::Color& color)
@@ -72,7 +52,13 @@ public:
 	}
 	virtual ~TetrisBLock(){}
 
-	void move(Map* map)
+
+	virtual void clear(Map* map)
+	{
+		for (auto& pos : poses)
+			map->set_element(pos.x, pos.y, GameState(State::none));
+	}
+	void  move(Map* map)
 	{
 		if (can_move(map))
 		{
@@ -81,7 +67,22 @@ public:
 			set(map);
 		}
 	}
+	void move(Map* map,Direction dir)
+	{
+		clear(map);
+		for (int i = 0;i<poses.size();i++)
+		{
+			poses[i] = move_point(poses[i], dir);
+		}
+		set(map);
+	}
+	virtual void set(Map* map)
+	{
+		for (auto& pos : poses)
+			map->set_element(pos.x, pos.y, GameState(cur_state));
+	}
 	virtual void generate() = 0;
+	virtual bool can_move(Map* map) = 0;
 
 	bool is_eaten(const sf::Vector2u& snake_head)
 	{
@@ -100,6 +101,94 @@ public:
 	}
 	bool should_die() { return poses.empty(); }
 	bool is_eatable() { return eatable; }
+	State get_state() { return cur_state; }
+
+	bool does_intersect_snake(const sf::Vector2u& head_pos)
+	{
+		return std::find(poses.begin(), poses.end(), head_pos) != poses.end();
+	}
+	bool should_fall()
+	{
+		return !is_attached_to_snake;
+	}
+	void set_attaching_flag(bool flag)
+	{
+		is_attached_to_snake = flag;
+	}
+
+	bool is_going_out_of_map(Direction dir)
+	{
+		for (auto& pos : poses)
+		{
+			auto next = move_point(pos, dir);
+			if (next.x > CELL_MAX - 1 or next.x < 0)return true;
+			if (next.y > CELL_MAX - 1 or next.y < 0)return true;
+		}
+		return false;
+	}
+
+	bool can_move_left(Map* map)
+	{
+		vector<sf::Vector2u> _poses;
+		std::copy(poses.begin(), poses.end(), back_inserter(_poses));
+		sort(_poses.begin(), _poses.end(),
+			[&](sf::Vector2u pos1, sf::Vector2u pos2)
+			{
+				return pos1.x < pos2.x;
+			});
+
+
+		//first sorted element is always the leftest
+		// and only the second one can be the letest too
+		//since all blocks have only 2 cells with the same x position
+		//if you add another specific block this solution might not work correctly
+		//in some cases
+		vector<sf::Vector2u> leftest;
+		leftest.push_back(_poses[0]);
+		if (_poses[1].x == _poses[0].x)leftest.push_back(_poses[1]);
+
+		for (int i = 0; i < leftest.size(); i++)
+		{
+			leftest[i] = move_point(leftest[i], Direction::Left);
+			bool check = std::find(poses.begin(), poses.end(), leftest[i]) != poses.end();
+
+			if (!map->is_empty(leftest[i].x, leftest[i].y) and !check)
+				return false;
+		}
+		return true;
+	}
+	bool can_move_right(Map* map)
+	{
+		vector<sf::Vector2u> _poses;
+		std::copy(poses.begin(), poses.end(), back_inserter(_poses));
+		sort(_poses.begin(), _poses.end(),
+			[&](sf::Vector2u pos1, sf::Vector2u pos2)
+			{
+				return pos1.x > pos2.x;
+			});
+
+		//same case like in previous function
+		vector<sf::Vector2u> rightest;
+		rightest.push_back(_poses[0]);
+		if (_poses[1].x == _poses[0].x)rightest.push_back(_poses[1]);
+
+		for (int i = 0; i < rightest.size(); i++)
+		{
+			rightest[i] = move_point(rightest[i], Direction::Right);
+
+			bool check = std::find(poses.begin(), poses.end(), rightest[i]) != poses.end();
+			if (!map->is_empty(rightest[i].x, rightest[i].y) and !check)
+				return false;
+		}
+		return true;
+	}
+	bool can_move_with_dir(Map* map, Direction dir)
+	{
+		if (dir == Direction::Down) return can_move(map);
+		else if (dir == Direction::Left)return can_move_left(map);
+		else if (dir == Direction::Right) return can_move_right(map);
+		else return false;
+	}
 };
 
 class HorizontalBlock : public TetrisBLock
@@ -110,7 +199,6 @@ private:
 		for (auto& pos : poses)
 		{
 			if (being_eaten) return false;
-			if (check_intersects_snake(map))return false;
 
 			auto down = sf::Vector2u(pos.x,pos.y+1);
 			if (down.y != CELL_MAX - 1)
@@ -156,7 +244,6 @@ private:
 	bool can_move(Map* map)
 	{
 		if (being_eaten) return false;
-		if (check_intersects_snake(map))return false;
 
 		auto last = find_last();
 		auto down = sf::Vector2u(last.x, last.y + 1);
@@ -222,7 +309,6 @@ protected:
 	virtual bool can_move(Map* map)
 	{
 		if (being_eaten) return false;
-		if (check_intersects_snake(map))return false;
 
 		vector<sf::Vector2u> last_els = { find_last(),find_lefter_last()};
 
@@ -286,7 +372,6 @@ private:
 	bool can_move(Map* map)
 	{
 		if (being_eaten) return false;
-		if (check_intersects_snake(map))return false;
 
 		auto last = find_last();
 		

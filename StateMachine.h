@@ -1,7 +1,6 @@
 #ifndef STATE_MACHINE_H
 #define STATE_MACHINE_H
 #include"Snake.h"
-#include"Map.h"
 #include"Event.h"
 #include"SFML/Graphics.hpp"
 #include"TetrisBlock.h"
@@ -80,6 +79,8 @@ private:
     sf::RectangleShape shape_to_eat; 
     array<sf::RectangleShape, 3> shapes_to_move;
 
+    bool block_movement = false;
+    vector<Direction> blocked_direction;
 public:
 	Game()
 	{
@@ -132,76 +133,77 @@ public:
         generate_color_to_eat();
 
         //key processing
-        BaseEvent* move_left = new SimpleEvent(INDEP, []() {
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+        BaseEvent* move_left = new SimpleEvent(INDEP, [&]() {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) and 
+                !is_dir_blocked(Direction::Left))
                 return true;
             else return false; },
             [&]() {
-                snake.change_dir(Snake::Direction::Left); });
+                snake.change_dir(Direction::Left); });
         event_manager.add(move_left);
 
-        BaseEvent* move_right = new SimpleEvent(INDEP, []() {
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+        BaseEvent* move_right = new SimpleEvent(INDEP, [&]() {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) and
+                !is_dir_blocked(Direction::Right))
                 return true;
             else return false; },
             [&]() {
-                snake.change_dir(Snake::Direction::Right); });
+                snake.change_dir(Direction::Right); });
         event_manager.add(move_right);
 
 
-        BaseEvent* move_up = new SimpleEvent(INDEP, []() {
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        BaseEvent* move_up = new SimpleEvent(INDEP, [&]() {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) and
+                !is_dir_blocked(Direction::Up))
                 return true;
             else return false; },
             [&]() {
-                snake.change_dir(Snake::Direction::Up); });
+                snake.change_dir(Direction::Up); });
         event_manager.add(move_up);
 
-        BaseEvent* move_down = new SimpleEvent(INDEP, []() {
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        BaseEvent* move_down = new SimpleEvent(INDEP, [&]() {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) and
+                !is_dir_blocked(Direction::Down))
                 return true;
             else return false; },
             [&]() {
-                snake.change_dir(Snake::Direction::Down); });
+                snake.change_dir(Direction::Down); });
         event_manager.add(move_down);
         ///
 
         //this is nonconditional event
    //because snake is moving all time
-        BaseEvent* process_movement = new SimpleEvent(INDEP, ALWAYS_RET_T,
-            [&]() {snake.move(); });
+        BaseEvent* process_movement = new SimpleEvent(INDEP, 
+            [&]() { return can_snake_move() and !is_dir_blocked(snake.get_dir()); },
+            [&]() {snake.update_head_pos(); });
         event_manager.add(process_movement);
 
 
-        BaseEvent* update = new MapEvent(DEP, ALWAYS_RET_T,
+        BaseEvent* update = new MapEvent(DEP,
+            [&]() {return !is_dir_blocked(snake.get_dir()); },
             [&](size_t x, size_t y, Map* map)
             {
-                auto cell = map->get_cell(x, y);
-                if (holds_alternative<GameState>(cell))
-                {
-                    auto obj = get<0>(cell);
-                    if (holds_alternative<SnakePiece*>(obj))
-                    {
-                        auto part = get<1>(obj);
-                        if (part->should_terminate())
-                            map->set_element(x, y, GameState(State::none));
-                        else part->decrement();
-
-                    }
-                }
-
-
-                map->set_element(snake.get_head_pos().x, snake.get_head_pos().y,
-                    GameState(new SnakePiece(snake.len())));
+                update_snake(x, y);
             });
         event_manager.add(update);
+
+        BaseEvent* set_snake = new SimpleEvent(INDEP, [&]() { return !dying; },
+            [&]()
+            {
+                map->set_element(snake.get_head_pos().x, snake.get_head_pos().y,
+                GameState(new SnakePiece(snake.len())));
+            });
+        event_manager.add(set_snake);
 
         BaseEvent* eat_apple = new SimpleEvent(INDEP, [&]()
             {
                 for (auto& block:tetris_blocks)
                 {
-                    if (block->is_eaten(snake.get_head_pos()))
-                        return true;
+                    if (choose_color(block->get_state()) == color_to_eat)
+                    {
+                        if (block->is_eaten(snake.get_head_pos()))
+                            return true;
+                    }
                 }
                 return false;
             },
@@ -226,16 +228,16 @@ public:
                         auto head_pos = snake.get_head_pos();
                         switch (snake.get_dir())
                         {
-                        case Snake::Direction::Down:
+                        case Direction::Down:
                             head_pos.y += 1;
                             break;
-                        case Snake::Direction::Up:
+                        case Direction::Up:
                             head_pos.y -= 1;
                             break;
-                        case Snake::Direction::Left:
+                        case Direction::Left:
                             head_pos.x -= 1;
                             break;
-                        case Snake::Direction::Right:
+                        case Direction::Right:
                             head_pos.x += 1;
                             break;
                         }
@@ -290,6 +292,11 @@ public:
             });
         event_manager.add(generate_falling_block);
 
+
+        BaseEvent* _move_blocks = new SimpleEvent(INDEP, ALWAYS_RET_T,
+            [&]() { return move_blocks(); });
+        event_manager.add(_move_blocks);
+
         BaseEvent* update_blocks = new SimpleEvent(INDEP,
             [&]()
             {
@@ -301,11 +308,15 @@ public:
                     std::remove_if(
                         tetris_blocks.begin(),
                         tetris_blocks.end(),
-                        [](TetrisBLock* b) { return b->should_die(); }
+                        [](TetrisBLock* b) { return b->should_die() and b->should_fall(); }
                     ),
                     tetris_blocks.end()
                 );
-                for (auto& block : tetris_blocks)block->move(map);
+                for (auto& block : tetris_blocks)
+                {
+                    if(block->should_fall())
+                        block->move(map);
+                }
                 block_movement_clock.restart();
             });
         event_manager.add(update_blocks);
@@ -324,12 +335,27 @@ public:
         event_manager.add(change_color);
 
 
+        BaseEvent* check_blocked_direction = new SimpleEvent(INDEP, ALWAYS_RET_T,
+            [&]()
+            {
+                if (!blocked_direction.empty())
+                {
+                    blocked_direction.erase(
+                        std::remove_if(blocked_direction.begin(),
+                            blocked_direction.end(),
+                            [&](Direction dir) { return dir != snake.get_dir(); }),
+                        blocked_direction.end()
+                    );
+                }
+            });
+        event_manager.add(check_blocked_direction);
+
         ///////////TEXT EVENTS /////////////////////////////
         BaseEvent* update_text = new SimpleEvent(INDEP, ALWAYS_RET_T,
             [&]()
             {
                 time.setString("time:"+timer.get_time());
-                auto len = snake.len() + 1;
+                auto len = snake.len();
                 if (dying)len = snake_parts.size();
                 length.setString("length:" + to_string(len));
 
@@ -446,6 +472,83 @@ private:
         case State::magenta_apple: return sf::Color::Magenta; break;
         case State::yellow_apple: return sf::Color::Yellow; break;
         case State::red_apple: return sf::Color::Red; break;
+        }
+    }
+    State choose_color(sf::Color c)
+    {
+        if (c == sf::Color::Green) return State::green_apple;
+        if (c == sf::Color::Magenta) return State::magenta_apple;
+        if (c == sf::Color::Yellow) return State::yellow_apple;
+        if (c == sf::Color::Red) return State::red_apple;
+    }
+    void move_blocks()
+    {
+        for (auto& block : tetris_blocks)
+        {
+            if (block->does_intersect_snake(snake.get_next_pos()))
+            {  
+                auto block_color = choose_color(block->get_state());
+                if (block_color != color_to_eat)
+                {
+                    if (!block->is_going_out_of_map(snake.get_dir()))
+                    {
+                        
+                        block->set_attaching_flag(true);
+
+                        if (block->can_move_with_dir(map,snake.get_dir()))
+                        {
+                            block_movement = false;
+                            block->move(map,snake.get_dir());
+                        }
+                        else
+                        {
+                            block->set(map);
+                            blocked_direction.push_back(snake.get_dir());
+                            map->apply_procedure([&](size_t x, size_t y)
+                                {
+                                    update_snake(x, y,false);
+                                });
+                        }
+                    }
+                }
+            }
+            else
+            {
+                block->set_attaching_flag(false);
+            }
+        }
+    }
+    bool can_snake_move()
+    {
+        auto next_pos = snake.get_next_pos();
+        if (map->is_apple(next_pos.x, next_pos.y))
+        {
+            auto apple_type = map->get_apple_type(next_pos.x, next_pos.y);
+            if (choose_color(apple_type) == color_to_eat)
+                return true;
+            else return false;
+        }
+        return true;
+    }
+    bool is_dir_blocked(Direction dir)
+    {
+        return std::find(blocked_direction.begin(), blocked_direction.end(), dir) != blocked_direction.end();
+    }
+    void update_snake(size_t x, size_t y, bool should_decrement=true)
+    {
+        //last argument is just hack
+
+        auto cell = map->get_cell(x, y);
+        if (holds_alternative<GameState>(cell))
+        {
+            auto obj = get<0>(cell);
+            if (holds_alternative<SnakePiece*>(obj))
+            {
+                auto part = get<1>(obj);
+                if (part->should_terminate())
+                    map->set_element(x, y, GameState(State::none));
+                else if(should_decrement) part->decrement();
+            }
         }
     }
 };
