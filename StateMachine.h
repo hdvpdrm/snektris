@@ -45,9 +45,14 @@ struct GameStatistic
 {
     int snake_len, score;
     string game_time;
+    bool eat_itself;
     GameStatistic(int snake_len,
                   string game_time,
-                  int score):snake_len(snake_len),game_time(game_time),score(score)
+                  int score,
+                  bool eat_itself):snake_len(snake_len),
+                             game_time(game_time),
+                             score(score),
+                             eat_itself(eat_itself)
     {}
     ~GameStatistic(){}
 };
@@ -74,7 +79,8 @@ private:
     sf::Text time, length, apples_to_grow, eat,move, score;
     sftk::FancyText title;
 
-    bool dying = false;
+    bool dying = false;//snake eats itself
+    bool loosing = false; //there is block that reached the top
 
     sf::Color color_to_eat;
     array<sf::Color, 3> colors_to_move;
@@ -225,6 +231,8 @@ public:
         
         auto is_dead = [&](const sf::Vector2u& a, const sf::Vector2u& b)
         {return a == b; };
+
+
         BaseEvent* check_death = new MapEvent(DEP, ALWAYS_RET_T,
             [&](size_t x, size_t y, Map* map)
             {
@@ -262,6 +270,23 @@ public:
             });
         event_manager.add(check_death);
 
+        BaseEvent* check_blocks_reach_top = new MapEvent(DEP, ALWAYS_RET_T,
+            [&](size_t x, size_t y, Map* map)
+            {
+                for (auto& block : tetris_blocks)
+                {
+                    if (block->did_reach_the_top())
+                    {
+                        event_manager.stop();
+                        snake_parts = map->get_snake();
+                        clock.restart();
+                        loosing = true;
+                    }
+                }
+            });
+        event_manager.add(check_blocks_reach_top);
+
+
 
         BaseEvent* process_snake_fading = new SimpleEvent(AS, ALWAYS_RET_T,
             [&]() {
@@ -284,7 +309,10 @@ public:
         BaseEvent* set_game_stat = new SimpleEvent(AS, ALWAYS_RET_T,
             [&]()
             {
-                return_value = new GameStatistic(snake.len(), timer.get_time(),snake.get_score());
+                return_value = new GameStatistic(snake.len(), 
+                                                 timer.get_time(),
+                                                 snake.get_score(),
+                                                 !loosing);
             });
         event_manager.add(set_game_stat);
 
@@ -373,6 +401,11 @@ public:
                 apples_to_grow.setString("till grow:" + to_string(snake.get_apples_till_grow()));
             });
         event_manager.add(update_text);
+
+
+        BaseEvent* _clear_ground = new SimpleEvent(INDEP, ALWAYS_RET_T,
+            [&]() { clear_ground(); });
+        event_manager.add(_clear_ground);
 
         ////////////////////////////////////////////
 	}
@@ -582,6 +615,10 @@ private:
         
         return pressed;
     }
+
+    void clear_ground()
+    {
+    }
 };
 class Death:public BaseStateMachine
 {
@@ -590,12 +627,16 @@ private:
 public:
     Death(void* return_value):BaseStateMachine(return_value)
     {
+        GameStatistic* stat = static_cast<GameStatistic*>(return_value);
+
+        string first_word = stat->eat_itself ? "ATE" : "GAME";
+        string second_word = stat->eat_itself ? " YOURSELF" : "          OVER";
         title = sftk::TextBuilder{ font }
         << sftk::txt::size(60)
-        << "ATE" << sf::Color::Magenta << " YOURSELF";
+        << first_word << sf::Color::Magenta << second_word;
         title.setPosition(200.0f, 40.0f);
 
-        GameStatistic* stat = static_cast<GameStatistic*>(return_value);
+        
 
         snake_len = sftk::TextBuilder{ label_font }
             << sftk::txt::size(24)

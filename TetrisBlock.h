@@ -20,6 +20,14 @@ protected:
 	bool being_eaten = false;
 	bool eatable = false;
 	bool is_attached_to_snake = false;
+
+	bool win()
+	{
+		for (auto& pos : poses)
+			if (pos.y == 1) return true;
+		return false;
+	}
+	bool reached_the_top = false;
 private:
 	State cur_state;
 	State choose_type(const sf::Color& color)
@@ -103,6 +111,7 @@ public:
 	bool should_die() { return poses.empty(); }
 	bool is_eatable() { return eatable; }
 	State get_state() { return cur_state; }
+	bool did_reach_the_top() { return reached_the_top; }
 
 	bool does_intersect_snake(const sf::Vector2u& head_pos)
 	{
@@ -191,7 +200,7 @@ public:
 		else return false;
 	}
 
-	void erase(const vector<sf::Vector2u>& poses_to_erase)
+	void erase(const vector<sf::Vector2u>& poses_to_erase,Map* map)
 	{
 		poses.erase(
 			remove_if(poses.begin(),
@@ -202,6 +211,7 @@ public:
 				}),
 			poses.end()
 		);
+		set(map);
 	}
 };
 
@@ -217,6 +227,11 @@ private:
 			auto down = sf::Vector2u(pos.x,pos.y+1);
 			if (down.y != CELL_MAX - 1)
 			{
+				if (map->is_apple(down.x, down.y) and win())
+				{
+					reached_the_top = true;
+					return false;
+				}
 				if (!map->is_empty(down.x, down.y))
 				{
 					return false;
@@ -263,6 +278,12 @@ private:
 		auto down = sf::Vector2u(last.x, last.y + 1);
 		if (down.y != CELL_MAX - 1)
 		{
+			if (map->is_apple(down.x, down.y) and win())
+			{
+				reached_the_top = true;
+				return false;
+			}
+
 			if (!map->is_empty(down.x, down.y))
 			{
 				return false;
@@ -333,6 +354,12 @@ protected:
 			auto down = sf::Vector2u(last.x, last.y + 1);
 			if (down.y != CELL_MAX - 1)
 			{
+				if (map->is_apple(down.x, down.y) and win())
+				{
+					reached_the_top = true;
+					return false;
+				}
+
 				if (!map->is_empty(down.x, down.y))
 				{
 					return false;
@@ -394,6 +421,11 @@ private:
 			auto down = sf::Vector2u(pos.x, pos.y + 1);
 			if (down.y != CELL_MAX - 1)
 			{
+				if (map->is_apple(down.x, down.y) and win())
+				{
+					reached_the_top = true;
+					return false;
+				}
 				if (!map->is_empty(down.x, down.y))
 				{
 					return false;
