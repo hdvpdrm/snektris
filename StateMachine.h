@@ -100,6 +100,7 @@ public:
 
 		map = new Map(CELL_MAX, CELL_MAX, snake.get_head_pos());
         tetris_blocks.push_back(generate_tetris_block(color_to_eat));
+        tetris_blocks[0]->move(map);//update first block at the beginning of game
    
         time.setFont(label_font);
         time.setCharacterSize(18);
@@ -643,6 +644,11 @@ private:
         }
         
         return pressed;
+    }
+
+    void force_blocks_to_fall()
+    {
+
     }
 };
 class Death:public BaseStateMachine
