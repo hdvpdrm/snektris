@@ -43,9 +43,11 @@ public:
 
 struct GameStatistic
 {
-    int snake_len;
+    int snake_len, score;
     string game_time;
-    GameStatistic(int snake_len,string game_time):snake_len(snake_len),game_time(game_time)
+    GameStatistic(int snake_len,
+                  string game_time,
+                  int score):snake_len(snake_len),game_time(game_time),score(score)
     {}
     ~GameStatistic(){}
 };
@@ -69,7 +71,9 @@ private:
     
 	Map* map = nullptr;
     Timer timer;
-    sf::Text time, length, apples_to_grow, eat,move;
+    sf::Text time, length, apples_to_grow, eat,move, score;
+    sftk::FancyText title;
+
     bool dying = false;
 
     sf::Color color_to_eat;
@@ -99,7 +103,11 @@ public:
    
         time.setFont(label_font);
         time.setCharacterSize(18);
-        time.setPosition(sf::Vector2f(10.0f, 150.0f));
+        time.setPosition(sf::Vector2f(10.0f, 125.0f));
+
+        score.setFont(label_font);
+        score.setCharacterSize(18);
+        score.setPosition(sf::Vector2f(10.0f, 150.0f));
 
         length.setFont(label_font);
         length.setCharacterSize(18);
@@ -118,6 +126,15 @@ public:
         move.setCharacterSize(16);
         move.setString("move:");
         move.setPosition(sf::Vector2f(10.0f, 340.0f));
+
+
+        title = sftk::TextBuilder{ font }
+            << sftk::txt::size(40)
+            << sf::Color::Magenta << "Sn"
+            <<sf::Color::Green<<"ek"<<
+            sf::Color::Yellow<<"tr"<<
+            sf::Color::Red<<"is";
+        title.setPosition(sf::Vector2f(10.0f, 10.0f));
 
         shape_to_eat.setSize(sf::Vector2f(16.0f, 16.0f));
         shape_to_eat.setPosition(sf::Vector2f(80.0f, 301.0f));
@@ -274,7 +291,7 @@ public:
         BaseEvent* set_game_stat = new SimpleEvent(AS, ALWAYS_RET_T,
             [&]()
             {
-                return_value = new GameStatistic(snake.len(), timer.get_time());
+                return_value = new GameStatistic(snake.len(), timer.get_time(),snake.get_score());
             });
         event_manager.add(set_game_stat);
 
@@ -354,6 +371,7 @@ public:
         BaseEvent* update_text = new SimpleEvent(INDEP, ALWAYS_RET_T,
             [&]()
             {
+                score.setString("score:" + to_string(snake.get_score()));
                 time.setString("time:"+timer.get_time());
                 auto len = snake.len();
                 if (dying)len = snake_parts.size();
@@ -440,6 +458,8 @@ private:
         window.draw(apples_to_grow);
         window.draw(eat);
         window.draw(move);
+        window.draw(title);
+        window.draw(score);
     }
     void draw_shapes(sf::RenderWindow& window)
     {
@@ -555,7 +575,7 @@ private:
 class Death:public BaseStateMachine
 {
 private:
-    sftk::FancyText title,snake_len, game_time;
+    sftk::FancyText title,snake_len, game_time, score, restart;
 public:
     Death(void* return_value):BaseStateMachine(return_value)
     {
@@ -577,8 +597,27 @@ public:
             << "game time was " << sf::Color::Green << stat->game_time<<"m";
         game_time.setPosition(180.0f, 180.0f);
 
+        score = sftk::TextBuilder{ label_font }
+            << sftk::txt::size(24)
+            << "your score is " << sf::Color::Red << to_string(stat->score);
+        score.setPosition(190.0f, 220.0f);
 
+
+        restart = sftk::TextBuilder{ label_font }
+            << sftk::txt::size(26)
+            << "press " << sf::Color::Magenta << "R" << sf::Color::White << " to restart.";
+        restart.setPosition(175.0f, 320.0f);
         delete stat;
+
+
+        BaseEvent* check_restart = new SimpleEvent(INDEP, [&]()
+            {
+                return sf::Keyboard::isKeyPressed(sf::Keyboard::R);
+            },
+            [&](){
+                move_to_next = true;
+            });
+        event_manager.add(check_restart);
     }
     ~Death(){}
 
@@ -587,6 +626,8 @@ public:
         window.draw(title);
         window.draw(snake_len);
         window.draw(game_time);
+        window.draw(score);
+        window.draw(restart);
     }
 };
 
@@ -626,6 +667,12 @@ public:
             delete curr_state_machine;
             curr_type = StateMachineType::death;
             curr_state_machine = new Death(ret_value);
+        }
+        else
+        {
+            delete curr_state_machine;
+            curr_type = StateMachineType::game;
+            curr_state_machine = new Game;
         }
     }
     BaseStateMachine* get_current_state_machine()
