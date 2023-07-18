@@ -100,7 +100,7 @@ public:
 
 		map = new Map(CELL_MAX, CELL_MAX, snake.get_head_pos());
         tetris_blocks.push_back(generate_tetris_block(color_to_eat));
-        tetris_blocks[0]->move(map);//update first block at the beginning of game
+        tetris_blocks[0]->set(map);//update first block at the beginning of game
    
         time.setFont(label_font);
         time.setCharacterSize(18);
@@ -318,7 +318,7 @@ public:
                     std::remove_if(
                         tetris_blocks.begin(),
                         tetris_blocks.end(),
-                        [](TetrisBLock* b) { return b->should_die() and b->should_fall(); }
+                        [](TetrisBLock* b) { return b->should_die() /* and b->should_fall()*/; }
                     ),
                     tetris_blocks.end()
                 );
@@ -359,14 +359,6 @@ public:
                 }
             });
         event_manager.add(check_blocked_direction);
-
-
-        BaseEvent* _clear_ground = new SimpleEvent(INDEP, ALWAYS_RET_T,
-            [&]()
-            {
-                clear_ground();
-            });
-        event_manager.add(_clear_ground);
 
         ///////////TEXT EVENTS /////////////////////////////
         BaseEvent* update_text = new SimpleEvent(INDEP, ALWAYS_RET_T,
@@ -573,61 +565,6 @@ private:
         }
     }
 
-    void clear_ground()
-    {
-        vector<sf::Vector2u> red, green, magenta, yellow;
-
-        for (int x = 0; x < CELL_MAX - 1; x++)
-        {
-            if (map->is_apple(x, CELL_MAX - 2))
-            {
-                auto type = map->get_apple_type(x, CELL_MAX - 2);
-
-                if (type == State::red_apple)
-                    red.push_back(sf::Vector2u(x, CELL_MAX - 2));
-
-                if (type == State::green_apple)
-                    green.push_back(sf::Vector2u(x, CELL_MAX - 2));
-
-                if (type == State::magenta_apple)
-                    magenta.push_back(sf::Vector2u(x, CELL_MAX - 2));
-
-                if (type == State::yellow_apple)
-                    yellow.push_back(sf::Vector2u(x, CELL_MAX - 2));
-            }
-        }
-        vector<vector<sf::Vector2u>> vecs =
-        {
-            red,green,magenta,yellow
-        };
-
-        std::for_each(vecs.begin(), vecs.end(), 
-            [&](const vector<sf::Vector2u>& vec)
-            {
-                int counter = 0;
-                for (int i = 0; i < vec.size(); i++)
-                {
-                    if (i + 1 != vec.size())
-                    {
-                        auto curr = vec[i];
-                        auto next = vec[i+1];
-                        if (abs((int)next.x - (int)curr.x) == 1) counter++;
-                    }
-                }
-                if (counter == 4)
-                {
-                    for (auto& block : tetris_blocks)
-                        block->erase(vec);
-
-                    for (int i = 0; i < 4; i++)
-                    {
-                        map->set_element(vec[i].x, vec[i].y, GameState(State::none));
-                    }
-                    snake.add_score();
-                }
-            });
-    }
-
     bool is_pressed(sf::Keyboard::Key key)
     {
         vector<sf::Keyboard::Key> keys = {sf::Keyboard::Left, 
@@ -644,11 +581,6 @@ private:
         }
         
         return pressed;
-    }
-
-    void force_blocks_to_fall()
-    {
-
     }
 };
 class Death:public BaseStateMachine

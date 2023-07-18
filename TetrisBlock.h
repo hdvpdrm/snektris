@@ -13,7 +13,7 @@ protected:
 	std::vector<sf::Vector2u> poses;
 	virtual void update()
 	{
-		for (int i = 0; i < poses.size(); i++)
+		for (size_t i = 0; i < poses.size(); i++)
 			poses[i].y += 1;
 	}
 	
@@ -25,9 +25,10 @@ private:
 	State choose_type(const sf::Color& color)
 	{
 		if (color == sf::Color::Green)   return State::green_apple;
-		if (color == sf::Color::Yellow)  return State::yellow_apple;
-		if (color == sf::Color::Magenta) return State::magenta_apple;
-		if (color == sf::Color::Red)     return State::red_apple;
+		else if (color == sf::Color::Yellow)  return State::yellow_apple;
+		else if (color == sf::Color::Magenta) return State::magenta_apple;
+		else 
+			return State::red_apple;
 	}
 public:
 	TetrisBLock(const sf::Color& color_to_eat)
@@ -70,7 +71,7 @@ public:
 	void move(Map* map,Direction dir)
 	{
 		clear(map);
-		for (int i = 0;i<poses.size();i++)
+		for (size_t i = 0;i<poses.size();i++)
 		{
 			poses[i] = move_point(poses[i], dir);
 		}
@@ -147,7 +148,7 @@ public:
 		leftest.push_back(_poses[0]);
 		if (_poses[1].x == _poses[0].x)leftest.push_back(_poses[1]);
 
-		for (int i = 0; i < leftest.size(); i++)
+		for (size_t i = 0; i < leftest.size(); i++)
 		{
 			leftest[i] = move_point(leftest[i], Direction::Left);
 			bool check = std::find(poses.begin(), poses.end(), leftest[i]) != poses.end();
@@ -172,7 +173,7 @@ public:
 		rightest.push_back(_poses[0]);
 		if (_poses[1].x == _poses[0].x)rightest.push_back(_poses[1]);
 
-		for (int i = 0; i < rightest.size(); i++)
+		for (size_t i = 0; i < rightest.size(); i++)
 		{
 			rightest[i] = move_point(rightest[i], Direction::Right);
 
@@ -188,6 +189,19 @@ public:
 		else if (dir == Direction::Left)return can_move_left(map);
 		else if (dir == Direction::Right) return can_move_right(map);
 		else return false;
+	}
+
+	void erase(const vector<sf::Vector2u>& poses_to_erase)
+	{
+		poses.erase(
+			remove_if(poses.begin(),
+				poses.end(),
+				[&](sf::Vector2u pos)
+				{
+					return find(poses_to_erase.begin(), poses_to_erase.end(), pos) != poses_to_erase.end();
+				}),
+			poses.end()
+		);
 	}
 };
 
