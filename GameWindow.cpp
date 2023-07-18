@@ -3,7 +3,7 @@
 
 GameWindow::GameWindow():
     sf::RenderWindow(sf::VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT),
-                     "Tnake",
+                     "Snektris",
                      sf::Style::Close | sf::Style::Titlebar)
 {
     setFramerateLimit(10);//otherwise game will work with the light speed
