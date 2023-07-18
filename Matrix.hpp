@@ -17,19 +17,19 @@ public:
 
 		//create matrix
 		matrix = new T* [y];
-		for (int i = 0; i < y; ++i) 
+		for (size_t i = 0; i < y; ++i) 
 		{
 			matrix[i] = new T[x];
 		}
 
 		//init matrix with default values
-		for (int y = 0; y < this->y; ++y)
-			for (int x = 0; x < this->x; ++x)
+		for (size_t y = 0; y < this->y; ++y)
+			for (size_t x = 0; x < this->x; ++x)
 				matrix[y][x] = T();
 	}
 	~Matrix()
 	{
-		for (int i = 0; i < y; ++i) 
+		for (size_t i = 0; i < y; ++i) 
 		{
 			delete[] matrix[i];
 		}
