@@ -18,13 +18,13 @@ static sf::Vector2u move_point(const sf::Vector2u& point,
 	case Direction::Down:
 		//if it reaches the bottom, then it teleports to the top
 		//otherwise it just moves down
-		if (point.y == CELL_MAX - 1) return sf::Vector2u(point.x, 0);
+		if (point.y == CELL_MAX - 2) return sf::Vector2u(point.x, 0);
 		else return sf::Vector2u(point.x, point.y + 1);
 		break;
 	case Direction::Up:
 		//if it reaches the top, then it teleports to the bottom
 		//otherswise it moves up
-		if (point.y == 0) return sf::Vector2u(point.x, CELL_MAX - 1);
+		if (point.y == 0) return sf::Vector2u(point.x, CELL_MAX - 2);
 		else return sf::Vector2u(point.x, point.y - 1);
 		break;
 	case Direction::Left:
