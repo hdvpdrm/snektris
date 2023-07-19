@@ -80,7 +80,7 @@ public:
 	{
 		head_pos = move();
 	}
-
+	void add_score() { score+=2; }
 	int get_score() { return score; }
 	int get_apples_till_grow() { return apples_till_grow; }
 

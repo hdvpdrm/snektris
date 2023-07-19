@@ -200,17 +200,22 @@ public:
 		else return false;
 	}
 
-	void erase(const vector<sf::Vector2u>& poses_to_erase,Map* map)
+	void erase(vector<sf::Vector2u>& poses_to_erase, Map* map)
 	{
-		poses.erase(
-			remove_if(poses.begin(),
-				poses.end(),
-				[&](sf::Vector2u pos)
+		for (auto it = poses_to_erase.begin(); it != poses_to_erase.end(); ++it)
+		{
+			auto pit = poses.begin();
+			while (pit != poses.end())
+			{
+				if (*pit == *it)
 				{
-					return find(poses_to_erase.begin(), poses_to_erase.end(), pos) != poses_to_erase.end();
-				}),
-			poses.end()
-		);
+					map->set_element((*pit).x, (*pit).y, GameState(State::none));
+					pit = poses.erase(pit);
+				}
+				else ++pit;
+			}
+				
+		}
 		set(map);
 	}
 };

@@ -618,6 +618,78 @@ private:
 
     void clear_ground()
     {
+        vector<vector<sf::Vector2u>> red, green, magenta, yellow;
+
+        auto add_pos = [&](vector<vector<sf::Vector2u>>& poses, sf::Vector2u pos)
+        {
+            if (poses.empty())
+            {
+                vector<sf::Vector2u> line = { pos };
+                poses.push_back(line);
+            }
+            else
+            {
+                bool added = false;
+                for (auto& line : poses)
+                {
+                    auto last = *(--line.end());
+                    auto diff = abs((int)last.x - (int)pos.x);
+                    if (diff == 1)
+                    {
+                        line.push_back(pos);
+                        added = true;
+                        break;
+                    }
+                }
+                if (!added)
+                {
+                    vector<sf::Vector2u> line = { pos };
+                    poses.push_back(line);
+                }
+            }
+        };
+        auto check_poses = [&](vector<vector<sf::Vector2u>>& poses)
+        {
+            for (auto& line : poses)
+            {
+                if (line.size() > 4)
+                {
+                    for (auto& block : tetris_blocks)
+                    {
+                        block->erase(line, map);
+                    }
+                    snake.add_score();
+                }
+            }
+        };
+        for (size_t x = 0; x < CELL_MAX - 1; x++)
+        {
+            if (map->is_apple(x, CELL_MAX - 2))
+            {
+                auto type = map->get_apple_type(x, CELL_MAX - 2);
+                switch (type)
+                {
+                case State::green_apple:
+                    add_pos(green, sf::Vector2u(x, CELL_MAX - 2));
+                    break;
+                case State::red_apple:
+                    add_pos(red, sf::Vector2u(x, CELL_MAX - 2));
+                    break;
+                case State::magenta_apple:
+                    add_pos(magenta, sf::Vector2u(x, CELL_MAX - 2));
+                    break;
+                case State::yellow_apple:
+                    add_pos(yellow, sf::Vector2u(x, CELL_MAX - 2));
+                    break;
+                }
+            }
+        }
+
+        check_poses(red);
+        check_poses(green);
+        check_poses(magenta);
+        check_poses(yellow);
+
     }
 };
 class Death:public BaseStateMachine
