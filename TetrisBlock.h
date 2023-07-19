@@ -219,7 +219,7 @@ public:
 		set(map);
 	}
 };
-
+//
 class HorizontalBlock : public TetrisBLock
 {
 private:

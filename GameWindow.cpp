@@ -7,6 +7,10 @@ GameWindow::GameWindow():
                      sf::Style::Close | sf::Style::Titlebar)
 {
     setFramerateLimit(10);//otherwise game will work with the light speed
+    
+    sf::Image icon;
+    icon.loadFromFile("assets/icon.png");
+    setIcon(32, 32, icon.getPixelsPtr());
 }
 GameWindow::~GameWindow()
 {

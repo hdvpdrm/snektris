@@ -3,6 +3,7 @@
 #include"Snake.h"
 #include"Event.h"
 #include"SFML/Graphics.hpp"
+#include"SFML/Audio.hpp"
 #include"TetrisBlock.h"
 #include"GameTimer.h"
 #include"FancyText.hpp"
@@ -91,9 +92,21 @@ private:
 
     bool block_movement = false;
     vector<Direction> blocked_direction;
+
+    sf::SoundBuffer eat_b, die_b, clear_b;
+    sf::Sound _eat, die, clear;
 public:
 	Game()
 	{
+        eat_b.loadFromFile("assets/eat.wav");
+        _eat.setBuffer(eat_b);
+
+        die_b.loadFromFile("assets/die.wav");
+        die.setBuffer(die_b);
+
+        clear_b.loadFromFile("assets/clear.wav");
+        clear.setBuffer(clear_b);
+
         color_changer_clock.restart();
         block_generator_clock.restart();
         block_movement_clock.restart();
@@ -226,6 +239,7 @@ public:
             [&]()
             {
                 snake.grow();
+                _eat.play();
             });
         event_manager.add(eat_apple);
         
@@ -297,6 +311,7 @@ public:
                     {
                         auto pos = snake_parts.top();
                         snake_parts.pop();
+                        die.play();
 
                         map->set_element(pos.x, pos.y, GameState(State::none));
                     }
@@ -654,6 +669,7 @@ private:
             {
                 if (line.size() > 4)
                 {
+                    clear.play();
                     for (auto& block : tetris_blocks)
                     {
                         block->erase(line, map);
