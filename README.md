@@ -5,7 +5,7 @@ fusion game of snake and tetris
 <a href="https://ibb.co/GnNjfV8"><img src="https://i.ibb.co/2WHB0jC/snektris.jpg" alt="snektris" border="0"></a>
 
 # Controls
-```W,A,S,D``` - movement
+```Arrows``` - movement
 
 # Dependencies
 1) ```SFML 2.6.1```
