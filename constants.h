@@ -6,7 +6,7 @@
 static const int CELL_SIZE = 20;
 static const int CELL_MAX = 30; //max number of cells
 
-static const float delta = 100.0f;
+static constexpr float delta = 100.0f;
 
 static const std::array<sf::Color, 4> colors = {sf::Color::Red,
                                                 sf::Color::Yellow,
