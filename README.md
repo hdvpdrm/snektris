@@ -10,3 +10,15 @@ fusion game of snake and tetris
 # Dependencies
 1) ```SFML 2.6.1```
 2) ```C++ 20```
+
+# How to build this game?
+1) install sfml(if you don't have it yet) with your package manager<br>
+Example:```bash sudo pacman -S sfml```<br>
+
+```bash
+git clone https://github.com/hdvpdrm/snektris.git
+cd snektris
+bash build.sh
+```
+
+That's it! You're ready to play!
