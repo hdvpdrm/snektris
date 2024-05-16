@@ -60,10 +60,10 @@ struct GameStatistic
 class Game:public BaseStateMachine
 {
 private:
-    sf::RectangleShape apple = sf::RectangleShape(sf::Vector2f(16.0f, 16.0f));
-    sf::RectangleShape snake_head = sf::RectangleShape(sf::Vector2f(16.0f, 16.0f));
+    sf::RectangleShape apple = sf::RectangleShape(DRAWABLE_OBJECT_SIZE);
+    sf::RectangleShape snake_head = sf::RectangleShape(DRAWABLE_OBJECT_SIZE);
     sf::RectangleShape border = sf::RectangleShape(sf::Vector2f(4.0f, CELL_SIZE*CELL_MAX));
-    sf::RectangleShape block = sf::RectangleShape(sf::Vector2f(16.0f, 16.0f));
+    sf::RectangleShape block = sf::RectangleShape(DRAWABLE_OBJECT_SIZE);
     bool cleared = false;
 
     sf::Clock clock;
@@ -156,13 +156,13 @@ public:
             sf::Color::Red<<"is";
         title.setPosition(sf::Vector2f(10.0f, 10.0f));
 
-        shape_to_eat.setSize(sf::Vector2f(16.0f, 16.0f));
+        shape_to_eat.setSize(DRAWABLE_OBJECT_SIZE);
         shape_to_eat.setPosition(sf::Vector2f(80.0f, 301.0f));
 
         auto x = 90.0f;
         for (auto& s : shapes_to_move)
         {
-            s.setSize(sf::Vector2f(16.0f, 16.0f));
+            s.setSize(DRAWABLE_OBJECT_SIZE);
             s.setPosition(sf::Vector2f(x, 341.0f));
             x += 20.0f;
         }
@@ -247,9 +247,6 @@ public:
             });
         event_manager.add(eat_apple);
         
-        auto is_dead = [&](const sf::Vector2u& a, const sf::Vector2u& b)
-        {return a == b; };
-
 
         BaseEvent* check_death = new MapEvent(DEP, ALWAYS_RET_T,
             [&](size_t x, size_t y, Map* map)
@@ -262,22 +259,8 @@ public:
                     {
                         auto curr = sf::Vector2u(x, y);
                         auto head_pos = snake.get_head_pos();
-                        switch (snake.get_dir())
-                        {
-                        case Direction::Down:
-                            head_pos.y += 1;
-                            break;
-                        case Direction::Up:
-                            head_pos.y -= 1;
-                            break;
-                        case Direction::Left:
-                            head_pos.x -= 1;
-                            break;
-                        case Direction::Right:
-                            head_pos.x += 1;
-                            break;
-                        }
-                        if (is_dead(curr, head_pos))
+                       
+                        if (curr == move_point(snake.get_head_pos(),snake.get_dir()))
                         {
                             event_manager.stop();
                             snake_parts = map->get_snake();
@@ -461,7 +444,7 @@ public:
                         ev->process();
                 }
 
-                block.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + delta * 2, (float)y * CELL_SIZE));
+                block.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + DELTA * 2, (float)y * CELL_SIZE));
                 window.draw(block);
 
 
@@ -469,7 +452,7 @@ public:
                 {               
                     auto type = map->get_apple_type(x, y);
                     apple.setFillColor(choose_color(type));
-                    apple.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + delta * 2, (float)y * CELL_SIZE));
+                    apple.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + DELTA * 2, (float)y * CELL_SIZE));
                     window.draw(apple);
                 }
                 if (map->is_snake_at_pos(x, y))
@@ -484,7 +467,7 @@ public:
                         color = sf::Color(25, 25, 25, 255);
                     }
                     snake_head.setFillColor(color);
-                    snake_head.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + delta * 2, (float)y * CELL_SIZE));
+                    snake_head.setPosition(sf::Vector2f(((float)x * CELL_SIZE) + DELTA * 2, (float)y * CELL_SIZE));
                     window.draw(snake_head);
                 }
             }
@@ -496,7 +479,7 @@ public:
 private:
     void draw_border(sf::RenderWindow& window)
     {
-        border.setPosition(sf::Vector2f((2*delta)-8.0f, 0.0f));
+        border.setPosition(sf::Vector2f((2*DELTA)-8.0f, 0.0f));
         window.draw(border);
     }
     void draw_text(sf::RenderWindow& window)
@@ -566,8 +549,7 @@ private:
                         if (block->can_move_with_dir(map,snake.get_dir()))
                         {
                             block_movement = false;
-							//block->move(map, get_opposite_direction(snake.get_dir()));
-                            block->move(map,snake.get_dir());
+							block->move(map,snake.get_dir());
                         }
                         else
                         {
