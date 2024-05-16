@@ -54,6 +54,8 @@ public:
 	State get_apple_type(size_t x, size_t y);
 
 	void apply_procedure(const function<void(size_t x, size_t y)>& proc);
+
+	static sf::Vector2u get_next_pos(const sf::Vector2u& cur_pos, Direction next_dir);
 };
 
 #endif //MAP_H
