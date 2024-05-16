@@ -43,7 +43,7 @@ public:
 		auto y = get_random_int(0, CELL_MAX - 1);
 		head_pos = sf::Vector2u(x, y);
 
-		dir = (Direction)get_random_int((int)Direction::Up, (int)Direction::Down);
+		dir = Direction::Right;
 	}
 	~Snake() {}
 
