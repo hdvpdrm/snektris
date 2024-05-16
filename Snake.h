@@ -30,7 +30,7 @@ public:
 class Snake
 {
 private:
-	int length = 2;
+	int length = 3;
 	sf::Vector2u head_pos;
 	Direction dir;
 	int score = 0;
