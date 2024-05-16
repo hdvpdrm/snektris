@@ -106,17 +106,3 @@ void Map::apply_procedure(const function<void(size_t x, size_t y)>& proc)
 			proc(x, y);
 		}
 }
-sf::Vector2u Map::get_next_pos(const sf::Vector2u& cur_pos, Direction next_dir)
-{
-	switch (next_dir)
-	{
-	case Direction::Down:
-		return sf::Vector2u(cur_pos.x, cur_pos.y + 1);
-	case Direction::Up:
-		return sf::Vector2u(cur_pos.x, cur_pos.y - 1);
-	case Direction::Left:
-		return sf::Vector2u(cur_pos.x - 1, cur_pos.y);
-	case Direction::Right:
-		return sf::Vector2u(cur_pos.x + 1, cur_pos.y);
-	}
-}
