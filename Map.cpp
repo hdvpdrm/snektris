@@ -19,12 +19,14 @@ stack<sf::Vector2u> Map::get_snake()
 {
 	vector< tuple<sf::Vector2u, SnakePiece*>> snake;
 	for (int y = 0; y < map->get_height();++y)
-		for (int x = 0; y < map->get_width(); ++y)
+		for (int x = 0; x < map->get_width(); ++x)
 		{
 			auto el = map->get_elem(x, y);
 			if (holds_alternative<GameState>(el))
 			{
 				auto obj = get<0>(el);
+				auto type = static_cast<GameState>(obj);
+				
 				if (holds_alternative<SnakePiece*>(obj))
 				{
 					snake.push_back(make_tuple(sf::Vector2u(x, y), get<1>(obj)));
@@ -105,4 +107,9 @@ void Map::apply_procedure(const function<void(size_t x, size_t y)>& proc)
 		{
 			proc(x, y);
 		}
+}
+bool Map::is_position_eatable(size_t x, size_t y, const State color_to_eat)
+{
+	if (!is_apple(x, y)) return true;
+	return get_apple_type(x, y) == color_to_eat;
 }

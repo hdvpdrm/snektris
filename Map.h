@@ -54,6 +54,8 @@ public:
 	State get_apple_type(size_t x, size_t y);
 
 	void apply_procedure(const function<void(size_t x, size_t y)>& proc);
+
+	bool is_position_eatable(size_t x, size_t y, State color_to_eat);
 };
 
 #endif //MAP_H
