@@ -283,7 +283,7 @@ private:
 		auto down = sf::Vector2u(last.x, last.y + 1);
 		if (down.y != CELL_MAX - 1)
 		{
-			if (map->is_apple(down.x, down.y) and win())
+			if (map->is_apple(down.x, down.y) and win() and !map->is_snake_at_pos(down.x,down.y))
 			{
 				reached_the_top = true;
 				return false;
