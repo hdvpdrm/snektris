@@ -171,30 +171,38 @@ public:
 
         //key processing
         BaseEvent* move_left = new SimpleEvent(INDEP, [&]() {
+			auto next_pos = Map::get_next_pos(snake.get_head_pos(),Direction::Left);
             return is_pressed(sf::Keyboard::Left) and
-                !is_dir_blocked(Direction::Left); },
+                !is_dir_blocked(Direction::Left)  and
+				map->is_empty(next_pos.x,next_pos.y);},
             [&]() {
                 snake.change_dir(Direction::Left); });
         event_manager.add(move_left);
 
         BaseEvent* move_right = new SimpleEvent(INDEP, [&]() {
+			auto next_pos = Map::get_next_pos(snake.get_head_pos(), Direction::Right);
             return is_pressed(sf::Keyboard::Right) and
-                !is_dir_blocked(Direction::Right); },
+                !is_dir_blocked(Direction::Right)  and
+				map->is_empty(next_pos.x, next_pos.y); },
             [&]() {
                 snake.change_dir(Direction::Right); });
         event_manager.add(move_right);
 
 
         BaseEvent* move_up = new SimpleEvent(INDEP, [&]() {
+			auto next_pos = Map::get_next_pos(snake.get_head_pos(), Direction::Up);
             return is_pressed(sf::Keyboard::Up) and
-                !is_dir_blocked(Direction::Up); },
+                !is_dir_blocked(Direction::Up)  and
+				map->is_empty(next_pos.x, next_pos.y); },
             [&]() {
                 snake.change_dir(Direction::Up); });
         event_manager.add(move_up);
 
         BaseEvent* move_down = new SimpleEvent(INDEP, [&]() {
+			auto next_pos = Map::get_next_pos(snake.get_head_pos(), Direction::Down);
             return is_pressed(sf::Keyboard::Down) and
-                !is_dir_blocked(Direction::Down); },
+                !is_dir_blocked(Direction::Down)  and
+				map->is_empty(next_pos.x, next_pos.y); },
             [&]() {
                 snake.change_dir(Direction::Down); });
         event_manager.add(move_down);
