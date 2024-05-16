@@ -1,12 +1,10 @@
 #ifndef MAP_H
 #define MAP_H
-#include<ranges>
 #include"Matrix.hpp"
 #include"Snake.h"
 #include<stack>
 #include <algorithm>
 #include<functional>
-namespace view = ranges::views;
 
 /*
 About game state:

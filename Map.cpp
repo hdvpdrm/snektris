@@ -4,8 +4,8 @@ Map::Map(size_t width, size_t height,const sf::Vector2u& snake_head_pos)
 {
 	//fill map with empty cells
 	map = new Matrix<GameState>(width, height);
-	for (int y : views::iota(0, (int)height))
-		for (int x : view::iota(0, (int)width))
+	for (int y  = 0; y<height;++y)
+		for (int x = 0; x< width; ++x)
 			map->set_element(GameState(State::none), x, y);
 
 	//set start position of snake
@@ -18,8 +18,8 @@ Map::~Map()
 stack<sf::Vector2u> Map::get_snake()
 {
 	vector< tuple<sf::Vector2u, SnakePiece*>> snake;
-	for (int y : views::iota(0, (int)map->get_height()))
-		for (int x : view::iota(0, (int)map->get_width()))
+	for (int y = 0; y < map->get_height();++y)
+		for (int x = 0; y < map->get_width(); ++y)
 		{
 			auto el = map->get_elem(x, y);
 			if (holds_alternative<GameState>(el))
@@ -100,8 +100,8 @@ State Map::get_apple_type(size_t x, size_t y)
 }
 void Map::apply_procedure(const function<void(size_t x, size_t y)>& proc)
 {
-	for (int y : views::iota(0, (int)map->get_height()))
-		for (int x : view::iota(0, (int)map->get_width()))
+	for (int y = 0; y < map->get_height(); ++y)
+		for (int x = 0; x < map->get_height(); ++x)
 		{
 			proc(x, y);
 		}

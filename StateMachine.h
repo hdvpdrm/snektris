@@ -219,7 +219,7 @@ public:
         BaseEvent* set_snake = new SimpleEvent(INDEP, [&]() { return !dying; },
             [&]()
             {
-                map->set_element(snake.get_head_pos().x, snake.get_head_pos().y,
+                (*map).set_element(snake.get_head_pos().x, snake.get_head_pos().y,
                 GameState(new SnakePiece(snake.len())));
             });
         event_manager.add(set_snake);
@@ -313,7 +313,7 @@ public:
                         snake_parts.pop();
                         die.play();
 
-                        map->set_element(pos.x, pos.y, GameState(State::none));
+                        (*map).set_element(pos.x, pos.y, GameState(State::none));
                     }
                     else move_to_next = true;
                     clock.restart();
@@ -431,8 +431,8 @@ public:
 
     void render(sf::RenderWindow& window)
     {
-        for (int y : views::iota(0, CELL_MAX))
-            for (int x : views::iota(0, CELL_MAX))
+        for (int y = 0; y < CELL_MAX; ++y)
+            for (int x = 0; x < CELL_MAX; ++x)
             {
                 if (!event_manager.should_stop())
                 {
