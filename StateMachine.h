@@ -2,10 +2,11 @@
 #define STATE_MACHINE_H
 #include"Snake.h"
 #include"Event.h"
-#include"SFML/Graphics.hpp"
-#include"SFML/Audio.hpp"
 #include"TetrisBlock.h"
 #include"GameTimer.h"
+#include"GameStatistic.h"
+#include"SFML/Graphics.hpp"
+#include"SFML/Audio.hpp"
 #include"FancyText.hpp"
 #include<array>
 /*
@@ -42,21 +43,7 @@ public:
 };
 
 
-struct GameStatistic
-{
-    int snake_len, score;
-    string game_time;
-    bool eat_itself;
-    GameStatistic(int snake_len,
-                  string game_time,
-                  int score,
-                  bool eat_itself):snake_len(snake_len),
-                             game_time(game_time),
-                             score(score),
-                             eat_itself(eat_itself)
-    {}
-    ~GameStatistic(){}
-};
+
 class Game:public BaseStateMachine
 {
 private:
@@ -71,11 +58,11 @@ private:
     sf::Clock block_movement_clock;
     sf::Clock color_changer_clock;
 
-	Snake snake;
+    Snake snake;
     stack<sf::Vector2u> snake_parts; //used for death
     vector<TetrisBLock*> tetris_blocks;
     
-	Map* map = nullptr;
+    Map* map = nullptr;
     Timer timer;
     sf::Text time, length, apples_to_grow, eat,move, score;
     sftk::FancyText title;
@@ -117,7 +104,7 @@ public:
         border.setFillColor(sf::Color(229,185,242,255));
         block.setFillColor(sf::Color(68,55,72,255));
 
-		map = new Map(CELL_MAX, CELL_MAX, snake.get_head_pos());
+	map = new Map(CELL_MAX, CELL_MAX, snake.get_head_pos());
         tetris_blocks.push_back(generate_tetris_block(color_to_eat));
         tetris_blocks[0]->set(map);//update first block at the beginning of game
    
@@ -146,7 +133,7 @@ public:
         move.setCharacterSize(16);
         move.setString("move:");
         move.setPosition(sf::Vector2f(10.0f, 340.0f));
-
+	
 
         title = sftk::TextBuilder{ font }
             << sftk::txt::size(40)
@@ -166,7 +153,7 @@ public:
             s.setPosition(sf::Vector2f(x, 341.0f));
             x += 20.0f;
         }
-
+	
         generate_color_to_eat();
 
 
@@ -271,7 +258,7 @@ public:
             });
         event_manager.add(check_death);
 
-	/*
+	/*!@@ DEPRECATED FOR SOME TIME...
 	//TODO:::!
         BaseEvent* check_blocks_reach_top = new MapEvent(DEP, ALWAYS_RET_T,
             [&](size_t x, size_t y, Map* map)
@@ -560,7 +547,7 @@ private:
 
                         if (block->can_move_with_dir(map,snake.get_dir()))
                         {
-                            block_movement = false;
+                            block_movement = false;			   
 			    block->move(map,snake.get_dir());
                         }
                         else
@@ -609,7 +596,9 @@ private:
             {
                 auto part = get<1>(obj);
                 if (part->should_terminate())
+		  {	
                     map->set_element(x, y, GameState(State::none));
+		  }
                 else if(should_decrement) part->decrement();
             }
         }
