@@ -1,48 +1,13 @@
 #ifndef STATE_MACHINE_H
 #define STATE_MACHINE_H
+#include"BaseStateMachine.hpp"
 #include"Snake.h"
-#include"Event.h"
 #include"TetrisBlock.h"
 #include"GameTimer.h"
-#include"GameStatistic.h"
-#include"SFML/Graphics.hpp"
+#include"GameStatistic.hpp"
 #include"SFML/Audio.hpp"
 #include"FancyText.hpp"
 #include<array>
-/*
-    StateMachine.
-    Simply it's just combination of events and data that is related to these events.
-    But there are many different data, so it's better to split them into different
-    objects and switch between them when it's required.
-    So There are 3 state machines: main menu, game and death.
-*/
-
-class BaseStateMachine
-{
-protected:
-	EventManager event_manager;
-	bool move_to_next = false;
-
-    sf::Font font,label_font;
-
-    void* return_value = nullptr;
-public:
-	BaseStateMachine(void* return_value=nullptr)
-    {
-        font.loadFromFile("assets/ARCADECLASSIC.TTF");
-        label_font.loadFromFile("assets/prstart.ttf");
-        return_value = return_value;
-    }
-	virtual ~BaseStateMachine(){}
-    
-    virtual void render(sf::RenderWindow& window) = 0;
-	bool should_move_to_next() { return move_to_next; }
-    EventManager& get_event_manager() { return event_manager; }
-
-    void* get_return_value() { return return_value; }
-};
-
-
 
 class Game:public BaseStateMachine
 {
@@ -699,117 +664,4 @@ private:
 
     }
 };
-class Death:public BaseStateMachine
-{
-private:
-    sftk::FancyText title,snake_len, game_time, score, restart;
-public:
-    Death(void* return_value):BaseStateMachine(return_value)
-    {
-        GameStatistic* stat = static_cast<GameStatistic*>(return_value);
-
-        string first_word = stat->eat_itself ? "ATE" : "GAME";
-        string second_word = stat->eat_itself ? " YOURSELF" : "          OVER";
-        title = sftk::TextBuilder{ font }
-        << sftk::txt::size(60)
-        << first_word << sf::Color::Magenta << second_word;
-        title.setPosition(200.0f, 40.0f);
-
-        
-
-        snake_len = sftk::TextBuilder{ label_font }
-            << sftk::txt::size(24)
-            << "snake's " << sf::Color::Yellow << "length " << sf::Color::White
-            << "was " + to_string(stat->snake_len);
-        snake_len.setPosition(170.0f, 140.0f);
-
-        game_time = sftk::TextBuilder{ label_font }
-            << sftk::txt::size(24)
-            << "game time was " << sf::Color::Green << stat->game_time<<"m";
-        game_time.setPosition(180.0f, 180.0f);
-
-        score = sftk::TextBuilder{ label_font }
-            << sftk::txt::size(24)
-            << "your score is " << sf::Color::Red << to_string(stat->score);
-        score.setPosition(190.0f, 220.0f);
-
-
-        restart = sftk::TextBuilder{ label_font }
-            << sftk::txt::size(26)
-            << "press " << sf::Color::Magenta << "R" << sf::Color::White << " to restart.";
-        restart.setPosition(175.0f, 320.0f);
-        delete stat;
-
-
-        BaseEvent* check_restart = new SimpleEvent(INDEP, [&]()
-            {
-                return sf::Keyboard::isKeyPressed(sf::Keyboard::R);
-            },
-            [&](){
-                move_to_next = true;
-            });
-        event_manager.add(check_restart);
-    }
-    ~Death(){}
-
-    void render(sf::RenderWindow& window)
-    {
-        window.draw(title);
-        window.draw(snake_len);
-        window.draw(game_time);
-        window.draw(score);
-        window.draw(restart);
-    }
-};
-
-
-class StateMachineManager
-{
-private:
-    enum class StateMachineType
-    {
-        main_menu,
-        game,
-        death,
-        Count
-    };
-    int get_state_machine_types_number()
-    {
-        return static_cast<int>(StateMachineType::Count);
-    }
-
-    StateMachineType curr_type = StateMachineType::game;
-    BaseStateMachine* curr_state_machine = nullptr;
-public:
-    StateMachineManager()
-    {
-        curr_state_machine = new Game();
-    }
-    ~StateMachineManager()
-    {
-        delete curr_state_machine;
-    }
-
-    void update()
-    {
-        if (curr_type == StateMachineType::game)
-        {
-            void* ret_value = curr_state_machine->get_return_value();
-            delete curr_state_machine;
-            curr_type = StateMachineType::death;
-            curr_state_machine = new Death(ret_value);
-        }
-        else
-        {
-            delete curr_state_machine;
-            curr_type = StateMachineType::game;
-            curr_state_machine = new Game;
-        }
-    }
-    BaseStateMachine* get_current_state_machine()
-    { 
-        return curr_state_machine;
-    }
-};
-
 #endif 
