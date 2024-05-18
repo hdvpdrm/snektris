@@ -219,17 +219,33 @@ public:
 		set(map);
 	}
 };
-//
-class HorizontalBlock : public TetrisBLock
+
+class SquareBlock : public TetrisBLock
 {
 private:
-	virtual bool can_move(Map* map)
+	vector<sf::Vector2u> find_last()
 	{
-		for (auto& pos : poses)
-		{
-			if (being_eaten) return false;
+		vector<sf::Vector2u> sorted(poses);
+		std::sort(sorted.begin(), sorted.end(), [](sf::Vector2u pos1,
+			sf::Vector2u pos2) {return pos1.y > pos2.y; });
 
-			auto down = sf::Vector2u(pos.x,pos.y+1);
+		vector<sf::Vector2u> last;
+		last.push_back(sorted[0]);
+		if (sorted.size() > 1)
+		{
+			if (sorted[1].y == sorted[0].y)last.push_back(sorted[1]);
+		}
+		return last;
+	}
+	bool can_move(Map* map)
+	{
+		if (being_eaten) return false;
+
+		auto last = find_last();
+		
+		for (auto& pos : last)
+		{
+			auto down = sf::Vector2u(pos.x, pos.y + 1);
 			if (down.y != CELL_MAX - 1)
 			{
 				if (map->is_apple(down.x, down.y) and win())
@@ -248,24 +264,24 @@ private:
 	}
 	void generate()
 	{
-		auto start_x = get_random_int(0, CELL_MAX - 8);
-
-		for (int x = 0; x < 4; x++)
+		auto x = get_random_int(0, CELL_MAX - 4);
+		for (int y = 0; y < 2; y++)
 		{
-			poses.push_back(sf::Vector2u(x + start_x, 0));
+			poses.push_back(sf::Vector2u(x, y));
+			poses.push_back(sf::Vector2u(x+1, y));
 		}
 	}
 public:
-	HorizontalBlock(const sf::Color& color_to_eat):TetrisBLock(color_to_eat)
+	SquareBlock(const sf::Color& color_to_eat):TetrisBLock(color_to_eat)
 	{
 		generate();
 	}
-	~HorizontalBlock(){}
+	~SquareBlock()
+	{}
 };
 class VerticalBlock : public TetrisBLock
 {
 private:
-
 	sf::Vector2u find_last()
 	{
 		if (poses.size() == 1)return poses[0];
@@ -313,6 +329,48 @@ public:
 	}
 	~VerticalBlock(){}
 
+};
+class HorizontalBlock : public TetrisBLock
+{
+private:
+	virtual bool can_move(Map* map)
+	{
+		for (auto& pos : poses)
+		{
+			if (being_eaten) return false;
+
+			auto down = sf::Vector2u(pos.x,pos.y+1);
+			if (down.y != CELL_MAX - 1)
+			{
+				if (map->is_apple(down.x, down.y) and win())
+				{
+					reached_the_top = true;
+					return false;
+				}
+				if (!map->is_empty(down.x, down.y))
+				{
+					return false;
+				}
+			}
+			else return false;
+		}
+		return true;
+	}
+	void generate()
+	{
+		auto start_x = get_random_int(0, CELL_MAX - 8);
+
+		for (int x = 0; x < 4; x++)
+		{
+			poses.push_back(sf::Vector2u(x + start_x, 0));
+		}
+	}
+public:
+	HorizontalBlock(const sf::Color& color_to_eat):TetrisBLock(color_to_eat)
+	{
+		generate();
+	}
+	~HorizontalBlock(){}
 };
 class ZigZagBlock: public TetrisBLock
 {
@@ -397,65 +455,6 @@ public:
 	virtual ~ZigZagBlock()
 	{
 	}
-};
-class SquareBlock : public TetrisBLock
-{
-private:
-	vector<sf::Vector2u> find_last()
-	{
-		vector<sf::Vector2u> sorted(poses);
-		std::sort(sorted.begin(), sorted.end(), [](sf::Vector2u pos1,
-			sf::Vector2u pos2) {return pos1.y > pos2.y; });
-
-		vector<sf::Vector2u> last;
-		last.push_back(sorted[0]);
-		if (sorted.size() > 1)
-		{
-			if (sorted[1].y == sorted[0].y)last.push_back(sorted[1]);
-		}
-		return last;
-	}
-	bool can_move(Map* map)
-	{
-		if (being_eaten) return false;
-
-		auto last = find_last();
-		
-		for (auto& pos : last)
-		{
-			auto down = sf::Vector2u(pos.x, pos.y + 1);
-			if (down.y != CELL_MAX - 1)
-			{
-				if (map->is_apple(down.x, down.y) and win())
-				{
-					reached_the_top = true;
-					return false;
-				}
-				if (!map->is_empty(down.x, down.y))
-				{
-					return false;
-				}
-			}
-			else return false;
-		}
-		return true;
-	}
-	void generate()
-	{
-		auto x = get_random_int(0, CELL_MAX - 4);
-		for (int y = 0; y < 2; y++)
-		{
-			poses.push_back(sf::Vector2u(x, y));
-			poses.push_back(sf::Vector2u(x+1, y));
-		}
-	}
-public:
-	SquareBlock(const sf::Color& color_to_eat):TetrisBLock(color_to_eat)
-	{
-		generate();
-	}
-	~SquareBlock()
-	{}
 };
 
 static const std::vector<std::function<TetrisBLock*(const sf::Color& color_to_eat)>> generators =
