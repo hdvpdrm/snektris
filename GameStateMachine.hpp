@@ -2,7 +2,7 @@
 #define STATE_MACHINE_H
 #include"BaseStateMachine.hpp"
 #include"Snake.h"
-#include"TetrisBlock.h"
+#include"TetrisBlock.hpp"
 #include"GameTimer.h"
 #include"GameStatistic.hpp"
 #include"SFML/Audio.hpp"

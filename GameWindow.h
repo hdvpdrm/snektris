@@ -1,6 +1,6 @@
 #ifndef GAME_WINDOW_H
 #define GAME_WINDOW_H
-#include"StateMachine.h"
+#include"StateMachineManager.hpp"
 #include"constants.h"
 #include<algorithm>
 
