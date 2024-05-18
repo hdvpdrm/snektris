@@ -9,7 +9,7 @@ fusion game of snake and tetris
 
 # Dependencies
 1) ```SFML 2.6.1```
-2) ```C++ 11```
+2) ```C++ 17```
 
 # How to build this game?
 1) install sfml(if you don't have it yet) with your package manager<br>
