@@ -2,6 +2,7 @@
 #define CONSTANTS_H
 #include<array>
 #include"SFML/Graphics/Color.hpp"
+#include"SFML/System/Vector2.hpp"
 
 static const int CELL_SIZE = 20;
 static const int CELL_MAX = 30; //max number of cells
