@@ -271,9 +271,19 @@ public:
             });
         event_manager.add(check_death);
 
+	/*
+	//TODO:::!
         BaseEvent* check_blocks_reach_top = new MapEvent(DEP, ALWAYS_RET_T,
             [&](size_t x, size_t y, Map* map)
             {
+	      if(map->is_column_filled_with_blocks(x))
+		{
+		  event_manager.stop();
+		  snake_parts = map->get_snake();
+		  clock.restart();
+		  loosing = true;
+		}
+		/*
                 for (auto& block : tetris_blocks)
                 {
                     if (block->did_reach_the_top())
@@ -283,9 +293,9 @@ public:
                         clock.restart();
                         loosing = true;
                     }
-                }
-            });
-        event_manager.add(check_blocks_reach_top);
+		    /*    }*/
+		    //        });*/
+    //event_manager.add(check_blocks_reach_top);
 
 
 
@@ -532,6 +542,8 @@ private:
         if (c == sf::Color::Yellow) return State::yellow_apple;
         if (c == sf::Color::Red) return State::red_apple;
     }
+
+  //@!1
     void move_blocks()
     {
         for (auto& block : tetris_blocks)
@@ -549,7 +561,7 @@ private:
                         if (block->can_move_with_dir(map,snake.get_dir()))
                         {
                             block_movement = false;
-							block->move(map,snake.get_dir());
+			    block->move(map,snake.get_dir());
                         }
                         else
                         {
