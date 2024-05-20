@@ -23,7 +23,7 @@ enum class State
 	red_apple,
 	yellow_apple,
 	green_apple,
-	magenta_apple
+	magenta_apple,
 };
 typedef variant<State,SnakePiece*> GameState;
 typedef variant<GameState, void*> cell;
