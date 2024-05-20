@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FANCY_TEXT_HPP
+#define FANCY_TEXT_HPP
 
 #include <SFML/Graphics.hpp>
 #include <string_view>
@@ -183,3 +184,4 @@ TextBuilder operator<<(TextBuilder&& builder, T&& t) {
 }
 
 } // namespace sftk
+#endif //FANCY_TEXT_HPP

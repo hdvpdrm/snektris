@@ -26,7 +26,7 @@ private:
     Snake snake;
     stack<sf::Vector2u> snake_parts; //used for death
     vector<TetrisBLock*> tetris_blocks;
-    
+  
     Map* map = nullptr;
     Timer timer;
     sf::Text time, length, apples_to_grow, eat,move, score;
@@ -47,6 +47,8 @@ private:
 
     sf::SoundBuffer eat_b, die_b, clear_b;
     sf::Sound _eat, die, clear;
+
+  
 public:
 	Game()
 	{
@@ -484,15 +486,18 @@ private:
         case State::green_apple: return sf::Color::Green; break;
         case State::magenta_apple: return sf::Color::Magenta; break;
         case State::yellow_apple: return sf::Color::Yellow; break;
-        case State::red_apple: return sf::Color::Red; break;
+        default: break;
         }
+	
+	return sf::Color::Red;
     }
     State choose_color(sf::Color c)
     {
         if (c == sf::Color::Green) return State::green_apple;
         if (c == sf::Color::Magenta) return State::magenta_apple;
         if (c == sf::Color::Yellow) return State::yellow_apple;
-        if (c == sf::Color::Red) return State::red_apple;
+
+	return State::red_apple;
     }
 
   //@!1
@@ -501,7 +506,8 @@ private:
         for (auto& block : tetris_blocks)
         {
             if (block->does_intersect_snake(snake.get_next_pos()))
-            {  
+            {
+	      cout<<"nextnext!"<<endl;
                 auto block_color = choose_color(block->get_state());
                 if (block_color != color_to_eat)
                 {
@@ -512,8 +518,9 @@ private:
 
                         if (block->can_move_with_dir(map,snake.get_dir()))
                         {
-                            block_movement = false;			   
-			    block->move(map,snake.get_dir());
+                            block_movement = false;
+			    
+			    //block->move(map,snake.get_dir());
                         }
                         else
                         {

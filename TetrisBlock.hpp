@@ -399,10 +399,11 @@ protected:
 		{
 			left_last = sf::Vector2u(right_last.x - 1, right_last.y);
 			left = std::find(poses.begin(), poses.end(), left_last);
-			if (left == poses.end())
+			if (left == poses.end()) //strange
 				return sf::Vector2u(-1, -1);
 		}
-		else return *left;
+
+		return *left;
 	}
 	virtual bool can_move(Map* map)
 	{
