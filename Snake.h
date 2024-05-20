@@ -19,11 +19,14 @@ class SnakePiece
 {
 private:
 	unsigned short s; //piece's life time
+	bool eatable;
 public:
-	SnakePiece(unsigned short s):s(s){}
+	SnakePiece(unsigned short s, bool eatable = true):s(s),eatable(eatable){}
 	auto get_val() { return s; }
 	bool should_terminate() { return s == 0; }
 	void decrement() { --s; }
+
+	bool is_eatable() { return eatable; }
 };
 
 //this class implements functionality of snake
@@ -80,6 +83,11 @@ public:
 	{
 		head_pos = move();
 	}
+	void update_head_pos(const sf::Vector2u& pos)
+	{
+		head_pos = pos;
+	}
+
 	void add_score() { score+=2; }
 	int get_score() { return score; }
 	int get_apples_till_grow() { return apples_till_grow; }
