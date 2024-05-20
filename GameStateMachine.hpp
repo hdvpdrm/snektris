@@ -507,7 +507,6 @@ private:
         {
             if (block->does_intersect_snake(snake.get_next_pos()))
             {
-	      cout<<"nextnext!"<<endl;
                 auto block_color = choose_color(block->get_state());
                 if (block_color != color_to_eat)
                 {
@@ -519,8 +518,7 @@ private:
                         if (block->can_move_with_dir(map,snake.get_dir()))
                         {
                             block_movement = false;
-			    
-			    //block->move(map,snake.get_dir());
+			    block->move(map,snake.get_dir());
                         }
                         else
                         {
