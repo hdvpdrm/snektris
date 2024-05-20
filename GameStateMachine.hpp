@@ -48,6 +48,9 @@ private:
     sf::SoundBuffer eat_b, die_b, clear_b;
     sf::Sound _eat, die, clear;
 
+	bool noneatable_exist = false;
+	sf::Vector2u noneatable_snake_head;
+
   
 public:
 	Game()
@@ -129,14 +132,27 @@ public:
 			return is_pressed(sf::Keyboard::Left) and
 				!is_dir_blocked(Direction::Left); },
             [&]() {
-                snake.change_dir(Direction::Left); });
+                snake.change_dir(Direction::Left); 
+
+				if (noneatable_exist)
+				{
+					snake.update_head_pos(noneatable_snake_head);
+					noneatable_exist = false;
+				}
+			});
         event_manager.add(move_left);
 
 		BaseEvent* move_right = new SimpleEvent(INDEP, [&]() {
 			return is_pressed(sf::Keyboard::Right) and
 				!is_dir_blocked(Direction::Right); },
             [&]() {
-                snake.change_dir(Direction::Right); });
+                snake.change_dir(Direction::Right); 
+				if (noneatable_exist)
+				{
+					snake.update_head_pos(noneatable_snake_head);
+					noneatable_exist = false;
+				}
+			});
         event_manager.add(move_right);
 
 
@@ -144,14 +160,26 @@ public:
 			return is_pressed(sf::Keyboard::Up) and
 				!is_dir_blocked(Direction::Up);   },
             [&]() {
-                snake.change_dir(Direction::Up); });
+                snake.change_dir(Direction::Up); 
+				if (noneatable_exist)
+				{
+					snake.update_head_pos(noneatable_snake_head);
+					noneatable_exist = false;
+				}
+			});
         event_manager.add(move_up);
 
 		BaseEvent* move_down = new SimpleEvent(INDEP, [&]() {
 			return is_pressed(sf::Keyboard::Down) and
 				!is_dir_blocked(Direction::Down);   },
             [&]() {
-                snake.change_dir(Direction::Down); });
+                snake.change_dir(Direction::Down); 
+				if (noneatable_exist)
+				{
+					snake.update_head_pos(noneatable_snake_head);
+					noneatable_exist = false;
+				}
+			});
         event_manager.add(move_down);
         ///
 
@@ -211,15 +239,18 @@ public:
                     auto obj = get<0>(cell);
                     if (holds_alternative<SnakePiece*>(obj))
                     {
-                        auto curr = sf::Vector2u(x, y);
-                        auto head_pos = snake.get_head_pos();
-                       
-                        if (curr == move_point(snake.get_head_pos(),snake.get_dir()))
-                        {
-                            event_manager.stop();
-                            snake_parts = map->get_snake();
-                            clock.restart();
-                        }
+						if (get<1>(obj)->is_eatable())
+						{
+							auto curr = sf::Vector2u(x, y);
+							auto head_pos = snake.get_head_pos();
+
+							if (curr == move_point(snake.get_head_pos(), snake.get_dir()))
+							{
+								event_manager.stop();
+								snake_parts = map->get_snake();
+								clock.restart();
+							}
+						}
                     }
                 }
             });
@@ -518,7 +549,13 @@ private:
                         if (block->can_move_with_dir(map,snake.get_dir()))
                         {
                             block_movement = false;
-			    block->move(map,snake.get_dir());
+							if(block->does_intersect_snake(move_point(snake.get_head_pos(),snake.get_dir())))
+							block->move(map,snake.get_dir());
+						
+							auto head_pos = move_point(snake.get_head_pos(), snake.get_dir(), 1);
+							map->set_element(head_pos.x, head_pos.y, GameState(new SnakePiece(snake.len(), false)));
+							noneatable_snake_head = head_pos;
+							noneatable_exist = true;
                         }
                         else
                         {
