@@ -108,8 +108,3 @@ void Map::apply_procedure(const function<void(size_t x, size_t y)>& proc)
 			proc(x, y);
 		}
 }
-bool Map::is_position_eatable(size_t x, size_t y, const State color_to_eat)
-{
-	if (!is_apple(x, y)) return true;
-	return get_apple_type(x, y) == color_to_eat;
-}
