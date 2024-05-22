@@ -114,7 +114,10 @@ void Game::create_snake_events()
 
 				(*map).set_element(pos.x, pos.y, GameState(State::none));
 			}
-			else move_to_next = true;
+			else
+			  {
+			    move_to_next = true;
+			  }
 			clock.restart();
 		}
 	});

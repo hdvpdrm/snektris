@@ -48,4 +48,6 @@ void Game::set_text()
 		s.setPosition(sf::Vector2f(x, 341.0f));
 		x += 20.0f;
 	}
+
+	start_sound.play();
 }

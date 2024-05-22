@@ -39,16 +39,16 @@ private:
     bool block_movement = false;
     vector<Direction> blocked_direction;
 
-    sf::SoundBuffer eat_b, die_b, clear_b;
-    sf::Sound _eat, die, clear;
+  sf::SoundBuffer eat_b, die_b, clear_b, start_b, end_b;
+  sf::Sound _eat, die, clear, start_sound, end_sound;
 
-	bool noneatable_exist = false;
-	sf::Vector2u noneatable_snake_head;
+    bool noneatable_exist = false;
+    sf::Vector2u noneatable_snake_head;
 
 
-	bool snake_direction_changed = false;
-	sf::Vector2u snake_pos_before_direction_change;
-	Direction old_direction;
+    bool snake_direction_changed = false;
+    sf::Vector2u snake_pos_before_direction_change;
+    Direction old_direction;
   
 public:
 	Game()
@@ -61,6 +61,10 @@ public:
 
         clear_b.loadFromFile("assets/clear.wav");
         clear.setBuffer(clear_b);
+
+	start_b.loadFromFile("assets/start.wav");
+	start_sound.setBuffer(start_b);
+
 
         color_changer_clock.restart();
         block_generator_clock.restart();
