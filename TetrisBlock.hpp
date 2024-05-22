@@ -1,13 +1,14 @@
 #ifndef TETRIS_BLOCK_H
 #define TETRIS_BLOCK_H
+#include"BaseTetrisBlock.hpp"
 #include"SquareBlock.hpp"
-#include"VerticalBLock.hpp"
+#include"VerticalBlock.hpp"
 #include"HorizontalBlock.hpp"
 #include"ZigZagBlock.hpp"
 
 static const std::vector<std::function<TetrisBLock*(const sf::Color& color_to_eat)>> generators =
 {
-	[](const sf::Color& color_to_eat) { return new HorizontalBlock(color_to_eat); },
+  	[](const sf::Color& color_to_eat) { return new HorizontalBlock(color_to_eat); },
 	[](const sf::Color& color_to_eat) { return new VerticalBlock(color_to_eat); },
 	[](const sf::Color& color_to_eat) { return new ZigZagBlock(color_to_eat); },
 	[](const sf::Color& color_to_eat) { return new SquareBlock(color_to_eat); }

@@ -1,6 +1,6 @@
 #ifndef HORIZONTAL_BLOCK_HPP
 #define HORIZONTAL_BLOCK_HPP
-#include"TetrisBlock.hpp"
+#include"BaseTetrisBlock.hpp"
 class HorizontalBlock : public TetrisBLock
 {
 private:
