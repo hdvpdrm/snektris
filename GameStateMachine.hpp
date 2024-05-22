@@ -75,8 +75,8 @@ public:
 
         apple.setFillColor(sf::Color::Red);
         snake_head.setFillColor(sf::Color::Green);
-        border.setFillColor(sf::Color(229,185,242,255));
-        block.setFillColor(sf::Color(68,55,72,255));
+        border.setFillColor(border_color);
+        block.setFillColor(cell_color);
 
 	map = new Map(CELL_MAX, CELL_MAX, snake.get_head_pos());
         tetris_blocks.push_back(generate_tetris_block(color_to_eat));
