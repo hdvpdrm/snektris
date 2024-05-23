@@ -7,6 +7,8 @@ void Game::create_key_events()
 		return is_pressed(sf::Keyboard::Left) and
 			!is_dir_blocked(Direction::Left); },
 		[&]() {
+			if (does_new_dir_kills_snake(Direction::Left)) return; //break to prevent suicide
+
 			old_direction = snake.get_dir();
 			snake.change_dir(Direction::Left);
 
@@ -24,6 +26,8 @@ void Game::create_key_events()
 		return is_pressed(sf::Keyboard::Right) and
 			!is_dir_blocked(Direction::Right); },
 		[&]() {
+			if (does_new_dir_kills_snake(Direction::Right)) return; //break to prevent suicide
+
 			old_direction = snake.get_dir();
 			snake.change_dir(Direction::Right);
 			if (noneatable_exist)
@@ -41,6 +45,7 @@ void Game::create_key_events()
 		return is_pressed(sf::Keyboard::Up) and
 			!is_dir_blocked(Direction::Up);   },
 		[&]() {
+			if (does_new_dir_kills_snake(Direction::Up)) return; //break to prevent suicide
 			old_direction = snake.get_dir();
 			snake.change_dir(Direction::Up);
 			if (noneatable_exist)
@@ -57,6 +62,7 @@ void Game::create_key_events()
 		return is_pressed(sf::Keyboard::Down) and
 			!is_dir_blocked(Direction::Down);   },
 		[&]() {
+			if (does_new_dir_kills_snake(Direction::Down)) return; //break to prevent suicide
 			old_direction = snake.get_dir();
 			snake.change_dir(Direction::Down);
 			if (noneatable_exist)
