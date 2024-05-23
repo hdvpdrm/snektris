@@ -29,7 +29,7 @@ private:
   
     Map* map = nullptr;
     Timer timer;
-    sf::Text time, length, apples_to_grow, eat,move, score;
+    sf::Text time, length, apples_to_grow, eat,move, score, user_name;
     sftk::FancyText title;
 
     bool dying = false;//snake eats itself
@@ -51,8 +51,10 @@ private:
     Direction old_direction;
   
 public:
-	Game()
+	Game(const string& user_name)
 	{
+		this->user_name.setString(user_name);
+
         eat_b.loadFromFile("assets/eat.wav");
         _eat.setBuffer(eat_b);
 
@@ -62,8 +64,8 @@ public:
         clear_b.loadFromFile("assets/clear.wav");
         clear.setBuffer(clear_b);
 
-	start_b.loadFromFile("assets/start.wav");
-	start_sound.setBuffer(start_b);
+		start_b.loadFromFile("assets/start.wav");
+		start_sound.setBuffer(start_b);
 
 
         color_changer_clock.restart();
@@ -116,6 +118,7 @@ private:
 	//////
 
 	//GameUtilFunctions.cpp
+	bool does_new_dir_kills_snake(Direction dir);
 	void move_blocks();
 	bool can_snake_move();
 	bool is_dir_blocked(Direction dir);
