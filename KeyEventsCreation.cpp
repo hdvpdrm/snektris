@@ -74,11 +74,13 @@ void Game::create_key_events()
 	BaseEvent* check_was_direction_really_changed = new SimpleEvent(INDEP, [&]() { return snake_direction_changed; },
 		[&]()
 	{
+		auto pos = move_point(snake.get_head_pos(), snake.get_dir());
 		if (move_point(snake.get_head_pos(), snake.get_dir()) == snake_pos_before_direction_change)
 		{
 			snake.change_dir(old_direction);
+			
 		}
-
 		snake_direction_changed = false;
 	});
+	event_manager.add(check_was_direction_really_changed);
 }
