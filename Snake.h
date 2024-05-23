@@ -42,8 +42,8 @@ private:
 public:
 	Snake()
 	{
-		auto x = get_random_int(0, CELL_MAX - 1);
-		auto y = get_random_int(0, CELL_MAX - 1);
+		auto x = get_random_int(10, 20);
+		auto y = get_random_int(10, 20);
 		head_pos = sf::Vector2u(x, y);
 
 		dir = Direction::Right;
