@@ -171,5 +171,9 @@ void Game::clear_ground()
 	check_poses(green);
 	check_poses(magenta);
 	check_poses(yellow);
-
+}
+bool Game::does_new_dir_kills_snake(Direction dir)
+{
+	auto pos = move_point(snake.get_head_pos(), dir);
+	return map->is_snake_at_pos(pos.x, pos.y);
 }
