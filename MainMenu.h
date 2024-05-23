@@ -44,7 +44,9 @@ public:
 
 		BaseEvent* check_start = new SimpleEvent(INDEP, [&]()
 		{
-			return sf::Keyboard::isKeyPressed(sf::Keyboard::Enter);
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) ||
+				   sf::Keyboard::isKeyPressed(sf::Keyboard::Space) ||
+				   sf::Keyboard::isKeyPressed(sf::Keyboard::Tab);
 		},
 			[&]() {
 			move_to_next = true;
@@ -78,7 +80,7 @@ public:
 
 	string get_user_name()
 	{
-		return user_name.getString();
+		return user_name.getString().isEmpty()? "unknown":user_name.getString();
 	}
 	void update_user_name(char ch)
 	{
