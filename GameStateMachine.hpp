@@ -8,6 +8,7 @@
 #include"SFML/Audio.hpp"
 #include"FancyText.hpp"
 #include"ColorManager.h"
+#include"HighScoreManager.h"
 
 class Game:public BaseStateMachine, public ColorManager
 {
@@ -17,6 +18,8 @@ private:
     sf::RectangleShape border = sf::RectangleShape(sf::Vector2f(4.0f, CELL_SIZE*CELL_MAX));
     sf::RectangleShape block = sf::RectangleShape(DRAWABLE_OBJECT_SIZE);
     bool cleared = false;
+
+	HighScoreManager hs_manager;
 
     sf::Clock clock;
     sf::Clock block_generator_clock;
