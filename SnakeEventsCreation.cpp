@@ -116,6 +116,8 @@ void Game::create_snake_events()
 			}
 			else
 			  {
+				//add high score value
+				hs_manager.add(user_name.getString().toAnsiString(), snake.get_score());
 			    move_to_next = true;
 			  }
 			clock.restart();
