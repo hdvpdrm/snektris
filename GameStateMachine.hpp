@@ -19,7 +19,7 @@ private:
     sf::RectangleShape block = sf::RectangleShape(DRAWABLE_OBJECT_SIZE);
     bool cleared = false;
 
-	HighScoreManager hs_manager;
+    HighScoreManager hs_manager;
 
     sf::Clock clock;
     sf::Clock block_generator_clock;
