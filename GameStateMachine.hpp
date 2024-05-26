@@ -56,47 +56,48 @@ private:
 public:
 	Game(const string& user_name)
 	{
-		this->user_name.setString(user_name);
+	  
+	  this->user_name.setString(user_name);
 
-        eat_b.loadFromFile("assets/eat.wav");
-        _eat.setBuffer(eat_b);
+	  eat_b.loadFromFile("assets/eat.wav");
+	  _eat.setBuffer(eat_b);
 
-        die_b.loadFromFile("assets/die.wav");
-        die.setBuffer(die_b);
+	  die_b.loadFromFile("assets/die.wav");
+	  die.setBuffer(die_b);
 
-        clear_b.loadFromFile("assets/clear.wav");
-        clear.setBuffer(clear_b);
+	  clear_b.loadFromFile("assets/clear.wav");
+	  clear.setBuffer(clear_b);
 
-		start_b.loadFromFile("assets/start.wav");
-		start_sound.setBuffer(start_b);
+	  start_b.loadFromFile("assets/start.wav");
+	  start_sound.setBuffer(start_b);
 
 
-        color_changer_clock.restart();
-        block_generator_clock.restart();
-        block_movement_clock.restart();
-        clock.restart();
+	  color_changer_clock.restart();
+	  block_generator_clock.restart();
+	  block_movement_clock.restart();
+	  clock.restart();
 
-        apple.setFillColor(sf::Color::Red);
-        snake_head.setFillColor(sf::Color::Green);
-        border.setFillColor(border_color);
-        block.setFillColor(cell_color);
+	  apple.setFillColor(sf::Color::Red);
+	  snake_head.setFillColor(sf::Color::Green);
+	  border.setFillColor(border_color);
+	  block.setFillColor(cell_color);
 
-		map = new Map(CELL_MAX, CELL_MAX, snake.get_head_pos());
-        tetris_blocks.push_back(generate_tetris_block(color_to_eat));
-        tetris_blocks[0]->set(map);//update first block at the beginning of game
+	  map = new Map(CELL_MAX, CELL_MAX, snake.get_head_pos());
+	  tetris_blocks.push_back(generate_tetris_block(color_to_eat));
+	  tetris_blocks[0]->set(map);//update first block at the beginning of game
    
-		set_text();
+	  set_text();
 
-        generate_color_to_eat();
+	  generate_color_to_eat();
 
-		create_key_events();
-		create_snake_events();
-		create_blocks_events();
-		create_text_events();
+	  create_key_events();
+	  create_snake_events();
+	  create_blocks_events();
+	  create_text_events();
 	}
 	~Game()
 	{
-		delete map;
+	  delete map;
 	}
 
 	//GameDrawingFunctions.cpp
