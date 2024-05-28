@@ -31,7 +31,7 @@ void GameWindow::run()
                 close();
 			if (event.type == sf::Event::TextEntered and 
 				manager.is_allowed_to_accumulate_text_input() and
-				input_counter < 16)
+				input_counter < USER_NAME_MAX_LEN)
 			{
 				char input_val = event.text.unicode;
 				if(isalpha(input_val))
