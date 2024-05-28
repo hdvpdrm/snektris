@@ -85,7 +85,9 @@ public:
 	void update_user_name(char ch)
 	{
 		user_name.setString(user_name.getString() + ch);
-		cursor.setPosition(cursor.getPosition() + sf::Vector2f(20.0f, 0.0f));
+		auto bounds = user_name.getGlobalBounds();
+		auto pos = sf::Vector2f(bounds.left+bounds.width,cursor.getPosition().y);
+		cursor.setPosition(pos + sf::Vector2f(1.0.0f, 0.0f));
 	}
 	void render(sf::RenderWindow& window)
 	{
