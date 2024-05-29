@@ -22,6 +22,6 @@ static const sf::Color cell_color   = sf::Color(68, 55, 72, 255);
 static constexpr int WINDOW_WIDTH = (CELL_MAX * CELL_SIZE) + (int)DELTA * 2;
 static constexpr int WINDOW_HEIGHT = (CELL_MAX * CELL_SIZE) - CELL_SIZE;
 
-static const int USER_NAME_MAX_LEN = 10;
+static const int USER_NAME_MAX_LEN = 13;
 
 #endif
