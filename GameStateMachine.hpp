@@ -39,19 +39,19 @@ private:
     bool loosing = false; //there is block that reached the top
 
 
-    bool block_movement = false;
-    vector<Direction> blocked_direction;
+  bool block_movement = false;
+  vector<Direction> blocked_direction;
 
   sf::SoundBuffer eat_b, die_b, clear_b, start_b, end_b;
   sf::Sound _eat, die, clear, start_sound, end_sound;
 
-    bool noneatable_exist = false;
-    sf::Vector2u noneatable_snake_head;
+  bool noneatable_exist = false;
+  sf::Vector2u noneatable_snake_head;
 
 
-    bool snake_direction_changed = false;
-    sf::Vector2u snake_pos_before_direction_change;
-    Direction old_direction;
+  bool snake_direction_changed = false;
+  sf::Vector2u snake_pos_before_direction_change;
+  Direction old_direction;
   
 public:
 	Game(const string& user_name)
