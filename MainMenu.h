@@ -45,7 +45,6 @@ public:
 		BaseEvent* check_start = new SimpleEvent(INDEP, [&]()
 		{
 			return sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) ||
-				   sf::Keyboard::isKeyPressed(sf::Keyboard::Space) ||
 				   sf::Keyboard::isKeyPressed(sf::Keyboard::Tab);
 		},
 			[&]() {
@@ -82,19 +81,33 @@ public:
 	{
 		return user_name.getString().isEmpty()? "unknown":user_name.getString();
 	}
+        void move_cursor(const sf::Vector2f& pos)
+        {
+	  auto bounds = user_name.getGlobalBounds();
+	  auto _pos = sf::Vector2f(bounds.left+bounds.width,cursor.getPosition().y);
+	  cursor.setPosition(_pos + pos);
+        }
 	void update_user_name(char ch)
 	{
-		user_name.setString(user_name.getString() + ch);
-		auto bounds = user_name.getGlobalBounds();
-		auto pos = sf::Vector2f(bounds.left+bounds.width,cursor.getPosition().y);
-		cursor.setPosition(pos + sf::Vector2f(1.0.0f, 0.0f));
+	  user_name.setString(user_name.getString() + ch);
+	  move_cursor(sf::Vector2f(1.0f,0.0f));
 	}
+        void remove_last_char()
+        {
+	  auto str = user_name.getString().toAnsiString();
+	  if(str.empty()) return;
+
+	  
+	  str.pop_back();
+	  user_name.setString(str);
+	  move_cursor(sf::Vector2f(-1.0f,0.0f));
+        }
 	void render(sf::RenderWindow& window)
 	{
-		window.draw(title);
-		window.draw(input_message);
-		window.draw(cursor);
-		window.draw(user_name);
+	  window.draw(title);
+	  window.draw(input_message);
+	  window.draw(cursor);
+	  window.draw(user_name);
 	}
 
 };
