@@ -21,7 +21,8 @@ void GameWindow::run()
     auto* current_state_machine = manager.get_current_state_machine();
     auto event_manager = current_state_machine->get_event_manager();
 
-	int input_counter = 0;
+    int input_counter = 0;
+    int space_counter = 0;
     while (isOpen())
     {
         sf::Event event;
@@ -29,15 +30,38 @@ void GameWindow::run()
         {
             if (event.type == sf::Event::Closed)
                 close();
-			if (event.type == sf::Event::TextEntered and 
-				manager.is_allowed_to_accumulate_text_input() and
-				input_counter < USER_NAME_MAX_LEN)
-			{
-				char input_val = event.text.unicode;
-				if(isalpha(input_val))
-					static_cast<MainMenu*>(current_state_machine)->update_user_name(event.text.unicode);
-				input_counter++;
-			}
+
+	    bool input = manager.is_allowed_to_accumulate_text_input() and
+	      input_counter < USER_NAME_MAX_LEN;
+
+	    if (event.type == sf::Event::TextEntered and 
+		input)
+	      {
+		char input_val = event.text.unicode;
+		if(isalpha(input_val))
+		  static_cast<MainMenu*>(current_state_machine)->update_user_name(event.text.unicode);
+
+		if((int)input_val != 8)
+		input_counter++;
+	      }
+	    if(event.type == sf::Event::KeyPressed and
+	       input)
+	      {
+		if (event.key.scancode == sf::Keyboard::Scan::Space)
+		  {
+		    static_cast<MainMenu*>(current_state_machine)->update_user_name(' ');
+		    input_counter++;
+		  }
+	      }
+	    if(event.type == sf::Event::KeyPressed)
+	      {
+		if(event.key.scancode == sf::Keyboard::Scan::Backspace)
+		  {
+		    static_cast<MainMenu*>(current_state_machine)->remove_last_char();
+		    input_counter--;
+		  }
+	      }
+	    
         }
 
         //if it's time to switch to other state machine
