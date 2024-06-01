@@ -8,10 +8,10 @@ class StateMachineManager
 private:
     enum class StateMachineType
     {
-		main_menu,
-        game,
-        death,
-        Count
+      main_menu,
+      game,
+      death,
+      Count
     };
     int get_state_machine_types_number()
     {
@@ -20,7 +20,7 @@ private:
 
     StateMachineType curr_type = StateMachineType::main_menu;
     BaseStateMachine* curr_state_machine = nullptr;
-	string user_name;
+    string user_name;
 public:
     StateMachineManager()
     {
@@ -46,9 +46,14 @@ public:
         }
         else
         {
-			if (curr_type == StateMachineType::main_menu and user_name.empty())
-				user_name = static_cast<MainMenu*>(curr_state_machine)->get_user_name();
+	  if (curr_type == StateMachineType::main_menu and user_name.empty())
+	    user_name = static_cast<MainMenu*>(curr_state_machine)->get_user_name();
 
+	  if(curr_type == StateMachineType::main_menu and user_name == "smhst")
+	    {
+	      cout<<"show me high score table!"<<endl;
+	    }
+	  
             delete curr_state_machine;
             curr_type = StateMachineType::game;
             curr_state_machine = new Game(user_name);
