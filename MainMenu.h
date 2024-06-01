@@ -7,10 +7,10 @@
 class MainMenu : public BaseStateMachine
 {
 private:
-	sftk::FancyText title, input_message;
-	sf::RectangleShape cursor = sf::RectangleShape(sf::Vector2f(10.0f, 25.0f));
-	sf::Clock anim_timer;
-	sf::Text user_name;
+  sftk::FancyText title, input_message, help_message;
+  sf::RectangleShape cursor = sf::RectangleShape(sf::Vector2f(10.0f, 25.0f));
+  sf::Clock anim_timer;
+  sf::Text user_name;
 public:
 	MainMenu(void* return_value) :BaseStateMachine(return_value)
 	{
@@ -42,6 +42,22 @@ public:
 			<<"block";
 		input_message.setPosition(sf::Vector2f(100.0f, 150.0f));
 
+		help_message = sftk::TextBuilder{ font }
+		  << sftk::txt::size(24)
+		  << sftk::txt::spacing(4.0f)
+		  <<sf::Color::White
+		  <<" Type "
+		  <<sf::Color::Magenta
+		  <<" smhs "
+		  <<sf::Color::White
+		  <<" to see high scores or "
+		  <<sf::Color::Magenta
+		  <<" wtf "
+		  <<sf::Color::White
+		  <<" to see help ";
+		help_message.setPosition(sf::Vector2f(120.0f,400.0f));
+		  
+		
 		BaseEvent* check_start = new SimpleEvent(INDEP, [&]()
 		{
 			return sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) ||
@@ -108,6 +124,7 @@ public:
 	  window.draw(input_message);
 	  window.draw(cursor);
 	  window.draw(user_name);
+	  window.draw(help_message);
 	}
 
 };
