@@ -40,8 +40,8 @@ void Game::create_snake_events()
 		return false;
 	},
 		[&]()
-	{
-		snake.grow();
+	{ 
+		snake.grow(start_sound);
 		_eat.play();
 	});
 	event_manager.add(eat_apple);
