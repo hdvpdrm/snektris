@@ -3,7 +3,7 @@
 #include"SFML/System/Vector2.hpp"
 #include"GetRandomNumber.h"
 #include"MovebaleObject.h"
-
+#include"SFML/Audio.hpp"
 /*
 	Snake is discrete object that is represented by
 	different cells. Each cell has a life time and 
@@ -52,13 +52,15 @@ public:
 
 	sf::Vector2u get_head_pos() { return head_pos; }
 	int len() { return length; }
-	void grow() { 
+        void grow(sf::Sound& grow_s)
+        { 
 		apples_till_grow--;
 		if (apples_till_grow == 0)
 		{
 			length += 1;
 			score += 1;
 			apples_till_grow = 4;
+			grow_s.play();
 		}
 	}
 	Direction get_dir() { return dir; }
