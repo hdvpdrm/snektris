@@ -11,6 +11,9 @@ GameWindow::GameWindow():
     sf::Image icon;
     icon.loadFromFile("assets/icon.png");
     setIcon(32, 32, icon.getPixelsPtr());
+
+    type_b.loadFromFile("assets/type.wav");
+    type_sound.setBuffer(type_b);
 }
 GameWindow::~GameWindow()
 {
@@ -43,6 +46,7 @@ void GameWindow::run()
 
 		if((int)input_val != 8)
 		input_counter++;
+		type_sound.play();
 	      }
 	    if(event.type == sf::Event::KeyPressed and
 	       input)
@@ -51,6 +55,7 @@ void GameWindow::run()
 		  {
 		    static_cast<MainMenu*>(current_state_machine)->update_user_name(' ');
 		    input_counter++;
+		    type_sound.play();
 		  }
 	      }
 	    if(event.type == sf::Event::KeyPressed)
@@ -59,6 +64,7 @@ void GameWindow::run()
 		  {
 		    static_cast<MainMenu*>(current_state_machine)->remove_last_char();
 		    input_counter--;
+		    type_sound.play();
 		  }
 	      }
 	    
