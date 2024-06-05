@@ -4,6 +4,8 @@
 #include"FancyText.hpp"
 #include"SFML/Graphics/Text.hpp"
 #include"SFML/Graphics.hpp"
+#include"SFML/Audio.hpp"
+
 class MainMenu : public BaseStateMachine
 {
 private:
@@ -11,9 +13,15 @@ private:
   sf::RectangleShape cursor = sf::RectangleShape(sf::Vector2f(10.0f, 25.0f));
   sf::Clock anim_timer;
   sf::Text user_name;
+
+  sf::Music music;
 public:
 	MainMenu(void* return_value) :BaseStateMachine(return_value)
 	{
+	  music.openFromFile("assets/startmenu.wav");
+	  music.setLoop(true);
+	  music.setVolume(35);
+	  music.play();
 		user_name.setCharacterSize(32);
 		user_name.setFont(font);
 		user_name.setPosition(sf::Vector2f(100.0f, 200.0f));
@@ -89,8 +97,8 @@ public:
 		event_manager.add(update_cursor_view);
 	}
 	~MainMenu()
-	{
-
+        {
+	  music.stop();
 	}
 
 	string get_user_name()
