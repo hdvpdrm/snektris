@@ -44,7 +44,8 @@ private:
 
   sf::SoundBuffer eat_b, die_b, clear_b, start_b, end_b;
   sf::Sound _eat, die, clear, start_sound, end_sound;
-
+  sf::Music music;
+  
   bool noneatable_exist = false;
   sf::Vector2u noneatable_snake_head;
 
@@ -56,7 +57,10 @@ private:
 public:
 	Game(const string& user_name)
 	{
-	  
+	  music.openFromFile("assets/game.wav");
+	  music.setVolume(35);
+	  music.setLoop(true);
+	  music.play();
 	  this->user_name.setString(user_name);
 
 	  eat_b.loadFromFile("assets/eat.wav");
@@ -97,6 +101,7 @@ public:
 	}
 	~Game()
 	{
+	  music.stop();
 	  delete map;
 	}
 
