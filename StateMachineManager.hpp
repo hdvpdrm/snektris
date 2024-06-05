@@ -37,7 +37,13 @@ public:
 	}
     void update()
     {
-        if (curr_type == StateMachineType::game)
+      if(curr_type == StateMachineType::death)
+	{
+	  delete curr_state_machine;
+	  curr_type = StateMachineType::game;
+	  curr_state_machine = new Game(user_name);
+	}
+      else if (curr_type == StateMachineType::game)
         {
             void* ret_value = curr_state_machine->get_return_value();
             delete curr_state_machine;
@@ -49,15 +55,26 @@ public:
 	  if (curr_type == StateMachineType::main_menu and user_name.empty())
 	    user_name = static_cast<MainMenu*>(curr_state_machine)->get_user_name();
 
-	  if(curr_type == StateMachineType::main_menu and user_name == "smhst")
+	  if(curr_type == StateMachineType::main_menu)
 	    {
-	      cout<<"show me high score table!"<<endl;
+	      if(user_name == "smhs")
+		{
+		  cout<<"show me high score table!"<<endl;
+		}
+	      else if(user_name == "wtf")
+		{
+		  cout<<"say wtf!"<<endl;
+		}
+	    
+	      else
+		{
+		  delete curr_state_machine;
+		  curr_type = StateMachineType::game;
+		  curr_state_machine = new Game(user_name);
+		}
+        
 	    }
-	  
-            delete curr_state_machine;
-            curr_type = StateMachineType::game;
-            curr_state_machine = new Game(user_name);
-        }
+	}
     }
     BaseStateMachine* get_current_state_machine()
     { 
