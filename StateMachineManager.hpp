@@ -3,6 +3,7 @@
 #include"GameStateMachine.hpp"
 #include"DeathStateMachine.hpp"
 #include"MainMenu.h"
+#include"HelpMenu.hpp"
 class StateMachineManager
 {
 private:
@@ -11,6 +12,7 @@ private:
       main_menu,
       game,
       death,
+      help,
       Count
     };
     int get_state_machine_types_number()
@@ -43,6 +45,13 @@ public:
 	  curr_type = StateMachineType::game;
 	  curr_state_machine = new Game(user_name);
 	}
+      else if(curr_type == StateMachineType::help)
+	{
+	  user_name = "";
+	  delete curr_state_machine;
+	  curr_type = StateMachineType::main_menu;
+	  curr_state_machine = new MainMenu(nullptr);
+	}
       else if (curr_type == StateMachineType::game)
         {
             void* ret_value = curr_state_machine->get_return_value();
@@ -63,7 +72,9 @@ public:
 		}
 	      else if(user_name == "wtf")
 		{
-		  cout<<"say wtf!"<<endl;
+		  delete curr_state_machine;
+		  curr_type = StateMachineType::help;
+		  curr_state_machine = new HelpMenu(nullptr);
 		}
 	    
 	      else
