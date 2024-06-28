@@ -4,6 +4,7 @@
 #include"DeathStateMachine.hpp"
 #include"MainMenu.h"
 #include"HelpMenu.hpp"
+#include"HighScoreStateMachine.hpp"
 class StateMachineManager
 {
 private:
@@ -13,6 +14,7 @@ private:
       game,
       death,
       help,
+      high_score,
       Count
     };
     int get_state_machine_types_number()
@@ -68,7 +70,9 @@ public:
 	    {
 	      if(user_name == "smhs")
 		{
-		  cout<<"show me high score table!"<<endl;
+		  delete curr_state_machine;
+		  curr_type = StateMachineType::high_score;
+		  curr_state_machine = new HighScoreStateMachine(nullptr);
 		}
 	      else if(user_name == "wtf")
 		{
