@@ -4,6 +4,9 @@
 #include<unordered_map>
 #include<string>
 #include<filesystem>
+#include<algorithm>
+#include<vector>
+#include<utility>
 #include<stdio.h>
 
 namespace fs=std::filesystem;
@@ -29,6 +32,17 @@ public:
   ~HighScoreManager();
 
   void add(const std::string& name, int score);
+  std::vector<std::pair<std::string,int>> get_data()
+  {
+    std::vector<std::pair<std::string,int>> tmp;
+    for(auto& el:data)tmp.push_back(el);
+    
+    sort(tmp.begin(), tmp.end(),                                   
+	 [&](std::pair<std::string, int>& a,
+	     std::pair<std::string, int>& b)
+	 { return a.second > b.second; });
+    return tmp;
+  }
 };
 
 
