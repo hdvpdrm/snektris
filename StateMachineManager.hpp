@@ -69,7 +69,7 @@ public:
         }
         else
         {
-	  if (curr_type == StateMachineType::main_menu and user_name.empty())
+	  if (curr_type == StateMachineType::main_menu/* and user_name.empty() */)
 	    user_name = static_cast<MainMenu*>(curr_state_machine)->get_user_name();
 
 	  if(curr_type == StateMachineType::main_menu)
