@@ -90,18 +90,36 @@ HighScoreManager::~HighScoreManager()
   save();
 }
 
-
+std::string HighScoreManager::find_the_lowest_score()
+{
+  int score = INT_MAX-1;
+  std::string name = "";
+  for(auto& p: data)
+    {
+      if(p.second < score)
+	{
+	  score = p.second;
+	  name  = p.first;
+	}
+    }
+  return name;
+}
 void HighScoreManager::add(const std::string& name, int score)
 {
-	if (data.find(name) == data.end())
+  if(data.size() == 12)
+    {
+      data.erase(find_the_lowest_score());
+    }
+  
+  if (data.find(name) == data.end())
+    {
+      data[name] = score;
+    }
+  else
+    {
+      if (data[name] < score)
 	{
-		data[name] = score;
+	  data[name] = score;
 	}
-	else
-	{
-		if (data[name] < score)
-		{
-			data[name] = score;
-		}
-	}
+    }
 }

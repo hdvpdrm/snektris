@@ -8,6 +8,7 @@
 #include<vector>
 #include<utility>
 #include<stdio.h>
+#include<limits.h>
 
 namespace fs=std::filesystem;
 
@@ -27,6 +28,8 @@ private:
   bool split(const std::string& line,std::string& name, std::string& score);
   std::string substr(const std::string& str, int a, int b);
   bool is_number(const std::string& str);
+
+  std::string find_the_lowest_score();
 public:
   HighScoreManager();
   ~HighScoreManager();
