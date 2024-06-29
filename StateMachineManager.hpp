@@ -47,6 +47,12 @@ public:
 	  curr_type = StateMachineType::game;
 	  curr_state_machine = new Game(user_name);
 	}
+      else if(curr_type == StateMachineType::high_score)
+	{
+	  delete curr_state_machine;
+	  curr_type = StateMachineType::main_menu;
+	  curr_state_machine = new MainMenu(nullptr);
+	}
       else if(curr_type == StateMachineType::help)
 	{
 	  user_name = "";
