@@ -15,7 +15,8 @@ void Game::create_snake_events()
 		[&]() {return !is_dir_blocked(snake.get_dir()); },
 		[&](size_t x, size_t y, Map* map)
 	{
-		update_snake(x, y);
+	  if(!pause)
+	  update_snake(x, y);
 	});
 	event_manager.add(update);
 
