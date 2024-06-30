@@ -73,6 +73,8 @@ void Game::draw_text(sf::RenderWindow& window)
 	window.draw(title);
 	window.draw(score);
 	window.draw(user_name);
+
+	if(pause)window.draw(pause_label);
 }
 void Game::draw_shapes(sf::RenderWindow& window)
 {
