@@ -126,6 +126,12 @@ public:
 	  user_name.setString(str);
 	  move_cursor(sf::Vector2f(-1.0f,0.0f));
         }
+
+        int get_name_len()
+        {
+	  return user_name.getString().toAnsiString().size();
+	}
+    
 	void render(sf::RenderWindow& window)
 	{
 	  window.draw(title);
