@@ -34,10 +34,12 @@ private:
     Timer timer;
     sf::Text time, length, apples_to_grow, eat,move, score, user_name;
     sftk::FancyText title;
+    sf::Text pause_label;
 
     bool dying = false;//snake eats itself
     bool loosing = false; //there is block that reached the top
 
+    bool pause_clicked = false;
 
   bool block_movement = false;
   vector<Direction> blocked_direction;
