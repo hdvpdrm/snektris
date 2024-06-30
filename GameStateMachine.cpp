@@ -33,6 +33,11 @@ void Game::set_text()
 	user_name.setCharacterSize(14);
 	user_name.setPosition(sf::Vector2f(8, 410.0f));
 
+	pause_label.setString("Paused");
+	pause_label.setFillColor(sf::Color::Magenta);
+	pause_label.setFont(label_font);
+	pause_label.setCharacterSize(14);
+	pause_label.setPosition(sf::Vector2f(8,460.0f));
 
 	title = sftk::TextBuilder{ font }
 		<< sftk::txt::size(40)
