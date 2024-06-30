@@ -19,6 +19,7 @@ protected:
     sf::Font font,label_font;
 
     void* return_value = nullptr;
+    bool pause = false;
 public:
     BaseStateMachine(void* return_value=nullptr)
     {
@@ -33,5 +34,8 @@ public:
     EventManager& get_event_manager() { return event_manager; }
 
     void* get_return_value() { return return_value; }
+    bool is_paused() { return pause;}
+    void set_pause(bool flag) { pause = flag;}
+
 };
 #endif //BASE_STATE_MACHINE_HPP
