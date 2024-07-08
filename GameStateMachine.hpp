@@ -109,6 +109,12 @@ public:
 
 	//GameDrawingFunctions.cpp
 	void render(sf::RenderWindow& window);
+
+  bool is_victory()
+  {
+    //if it's not victory, then it's death
+    return snake.get_score() == 4;
+  }
 private:
 	//KeyEventsCreation.cpp
 	void create_key_events();
