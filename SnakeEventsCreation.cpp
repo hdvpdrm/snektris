@@ -124,5 +124,12 @@ void Game::create_snake_events()
 			clock.restart();
 		}
 	});
-	event_manager.add(process_snake_fading);
+	event_manager.add(process_snake_fading);	
+	BaseEvent* check_victory = new SimpleEvent(INDEP,
+						   ALWAYS_RET_T,
+						   [&](){
+						     if(snake.get_score() == 4)
+						       move_to_next = true;						     
+						   });
+	event_manager.add(check_victory);
 }
