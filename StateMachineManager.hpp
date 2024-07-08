@@ -5,6 +5,7 @@
 #include"MainMenu.h"
 #include"HelpMenu.hpp"
 #include"HighScoreStateMachine.hpp"
+#include"VictoryScreen.hpp"
 class StateMachineManager
 {
 private:
@@ -15,6 +16,7 @@ private:
       death,
       help,
       high_score,
+      victory,
       Count
     };
     int get_state_machine_types_number()
@@ -62,10 +64,19 @@ public:
 	}
       else if (curr_type == StateMachineType::game)
         {
-            void* ret_value = curr_state_machine->get_return_value();
-            delete curr_state_machine;
-            curr_type = StateMachineType::death;
-            curr_state_machine = new Death(ret_value);
+	  if(static_cast<Game*>(curr_state_machine)->is_victory())
+	    {
+	      delete curr_state_machine;
+	      curr_type = StateMachineType::victory;
+	      curr_state_machine = new VictoryScreen(nullptr);
+	    }
+	  else
+	    {
+	      void* ret_value = curr_state_machine->get_return_value();
+	      delete curr_state_machine;
+	      curr_type = StateMachineType::death;
+	      curr_state_machine = new Death(ret_value);
+	    }
         }
         else
         {
