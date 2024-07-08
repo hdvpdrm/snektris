@@ -112,8 +112,13 @@ public:
 
   bool is_victory()
   {
+    return_value = new GameStatistic(snake.len(),
+			timer.get_time(),
+			snake.get_score(),
+			!loosing);
+    
     //if it's not victory, then it's death
-    return snake.get_score() == 4;
+    return snake.get_score() >= 66;
   }
 private:
 	//KeyEventsCreation.cpp
