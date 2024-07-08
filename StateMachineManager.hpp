@@ -49,6 +49,12 @@ public:
 	  curr_type = StateMachineType::game;
 	  curr_state_machine = new Game(user_name);
 	}
+      if(curr_type == StateMachineType::victory)
+	{
+	  delete curr_state_machine;
+	  curr_type = StateMachineType::main_menu;
+	  curr_state_machine = new MainMenu(nullptr);
+	}
       else if(curr_type == StateMachineType::high_score)
 	{
 	  delete curr_state_machine;
@@ -66,9 +72,10 @@ public:
         {
 	  if(static_cast<Game*>(curr_state_machine)->is_victory())
 	    {
+	      void* ret_value = curr_state_machine->get_return_value();
 	      delete curr_state_machine;
 	      curr_type = StateMachineType::victory;
-	      curr_state_machine = new VictoryScreen(nullptr);
+	      curr_state_machine = new VictoryScreen(ret_value);
 	    }
 	  else
 	    {
