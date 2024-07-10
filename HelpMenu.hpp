@@ -31,7 +31,7 @@ public:
         << sftk::txt::size(40)
         << sf::Color::Magenta<<"You  need  "
         <<sf::Color::White<<"to  reach "
-        <<sf::Color::Magenta<<"  100 "
+        <<sf::Color::Magenta<<"  66 "
         <<sf::Color::White<<" score points";
     hint1.setPosition(80.0f, 250.0f);
 
