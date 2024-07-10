@@ -25,6 +25,8 @@ private:
     sf::Clock block_generator_clock;
     sf::Clock block_movement_clock;
     sf::Clock color_changer_clock;
+    sf::Clock eat_all_label_clock;
+  sf::Clock super_power_clock;
 
     Snake snake;
     stack<sf::Vector2u> snake_parts; //used for death
@@ -36,6 +38,8 @@ private:
     sftk::FancyText title;
     sf::Text pause_label;
 
+  sf::Text eat_all_label, eat_all_label_value;
+  
     bool dying = false;//snake eats itself
     bool loosing = false; //there is block that reached the top
 
@@ -84,7 +88,8 @@ public:
 	  block_generator_clock.restart();
 	  block_movement_clock.restart();
 	  clock.restart();
-
+	  eat_all_label_clock.restart();
+	  
 	  apple.setFillColor(sf::Color::Red);
 	  snake_head.setFillColor(sf::Color::Green);
 	  border.setFillColor(border_color);
