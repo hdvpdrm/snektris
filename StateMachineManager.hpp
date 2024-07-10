@@ -45,9 +45,10 @@ public:
     {
       if(curr_type == StateMachineType::death)
 	{
+	  
 	  delete curr_state_machine;
-	  curr_type = StateMachineType::game;
-	  curr_state_machine = new Game(user_name);
+	  curr_type = StateMachineType::main_menu;
+	  curr_state_machine = new MainMenu(nullptr);
 	}
       if(curr_type == StateMachineType::victory)
 	{
@@ -87,7 +88,7 @@ public:
         }
         else
         {
-	  if (curr_type == StateMachineType::main_menu/* and user_name.empty() */)
+	  if (curr_type == StateMachineType::main_menu and user_name.empty() )
 	    user_name = static_cast<MainMenu*>(curr_state_machine)->get_user_name();
 
 	  if(curr_type == StateMachineType::main_menu)
@@ -103,8 +104,7 @@ public:
 		  delete curr_state_machine;
 		  curr_type = StateMachineType::help;
 		  curr_state_machine = new HelpMenu(nullptr);
-		}
-	    
+		}   
 	      else
 		{
 		  delete curr_state_machine;
