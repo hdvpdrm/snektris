@@ -68,8 +68,17 @@ void Game::draw_text(sf::RenderWindow& window)
 	window.draw(time);
 	window.draw(length);
 	window.draw(apples_to_grow);
-	window.draw(eat);
-	window.draw(move);
+
+	if(!eat_all)
+	  {
+	    window.draw(eat);
+	    window.draw(move);
+	  }
+	else
+	  {
+	    window.draw(eat_all_label);
+	    window.draw(eat_all_label_value);
+	  }
 	window.draw(title);
 	window.draw(score);
 	window.draw(user_name);
@@ -78,6 +87,8 @@ void Game::draw_text(sf::RenderWindow& window)
 }
 void Game::draw_shapes(sf::RenderWindow& window)
 {
+  if(eat_all) return;
+  
 	window.draw(shape_to_eat);
 	for (auto& s : shapes_to_move)window.draw(s);
 }
