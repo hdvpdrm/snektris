@@ -27,4 +27,33 @@ void Game::create_text_events()
 	});
 	event_manager.add(set_game_stat);
 
+	
+	BaseEvent* update_eat_all_label = new SimpleEvent(INDEP,
+	[&](){ return eat_all;},
+	[&]()
+	{
+	  auto time = (int)eat_all_label_clock.getElapsedTime().asSeconds();
+	  if(time >= 5)
+	    {
+	      eat_all_label_clock.restart();
+	    }
+	  else if(time == 1)
+	    {
+	      eat_all_label_value.setFillColor(sf::Color::Magenta);
+	    }
+	  else if(time == 2)
+	    {
+	      eat_all_label_value.setFillColor(sf::Color::Green);
+	    }
+	  else if(time == 3)
+	    {
+	      eat_all_label_value.setFillColor(sf::Color::Red);
+	    }
+	  else if(time == 4)
+	    {
+	      eat_all_label_value.setFillColor(sf::Color::Yellow);
+	    }
+	});
+	event_manager.add(update_eat_all_label);
+
 }
