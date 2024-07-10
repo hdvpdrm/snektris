@@ -2,6 +2,8 @@
 
 void Game::move_blocks()
 {
+  if(eat_all) return;
+  
 	for (auto& block : tetris_blocks)
 	{
 		if (block->does_intersect_snake(snake.get_next_pos()))
@@ -44,12 +46,12 @@ void Game::move_blocks()
 	}
 }
 bool Game::can_snake_move()
-{
+{ 
 	auto next_pos = snake.get_next_pos();
 	if (map->is_apple(next_pos.x, next_pos.y))
 	{
 		auto apple_type = map->get_apple_type(next_pos.x, next_pos.y);
-		if (choose_color(apple_type) == color_to_eat)
+		if (choose_color(apple_type) == color_to_eat || eat_all)
 			return true;
 		else return false;
 	}
@@ -57,7 +59,7 @@ bool Game::can_snake_move()
 }
 bool Game::is_dir_blocked(Direction dir)
 {
-	return std::find(blocked_direction.begin(), blocked_direction.end(), dir) != blocked_direction.end();
+  return std::find(blocked_direction.begin(), blocked_direction.end(), dir) != blocked_direction.end();
 }
 void Game::update_snake(size_t x, size_t y, bool should_decrement)
 {
