@@ -10,6 +10,27 @@ void Game::create_snake_events()
 		[&]() {snake.update_head_pos(); });
 	event_manager.add(process_movement);
 
+	BaseEvent* start_eating_any_block = new SimpleEvent(INDEP,
+		 [&]() { return sf::Keyboard::isKeyPressed(sf::Keyboard::X) and !eat_all;},
+		 [&]()
+		 {
+		   if(snake.get_score() - 2 >= 0)
+		     {
+		       snake.spend_score();
+		       eat_all = true;
+		       super_power_clock.restart();
+		     }
+		   
+		 });
+	event_manager.add(start_eating_any_block);
+	BaseEvent* check_should_stop_super_power = new SimpleEvent(INDEP,
+								   [&]() { return eat_all and super_power_clock.getElapsedTime().asSeconds() > 30.0f;},
+								   [&](){
+								     eat_all = false;
+								     super_power_clock.restart();
+								   });
+	event_manager.add(check_should_stop_super_power);
+	
 
 	BaseEvent* update = new MapEvent(DEP,
 		[&]() {return !is_dir_blocked(snake.get_dir()); },
