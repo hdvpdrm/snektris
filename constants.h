@@ -24,4 +24,6 @@ static constexpr int WINDOW_HEIGHT = (CELL_MAX * CELL_SIZE) - CELL_SIZE;
 
 static const int USER_NAME_MAX_LEN = 13;
 
+static const int SCORE_TO_WIN = 66;
+
 #endif

@@ -55,6 +55,8 @@ private:
   bool snake_direction_changed = false;
   sf::Vector2u snake_pos_before_direction_change;
   Direction old_direction;
+
+  bool eat_all = false;
   
 public:
 	Game(const string& user_name)
@@ -118,7 +120,7 @@ public:
 			!loosing);
     
     //if it's not victory, then it's death
-    return snake.get_score() >= 66;
+    return snake.get_score() >= SCORE_TO_WIN;
   }
 private:
 	//KeyEventsCreation.cpp

@@ -20,6 +20,7 @@ void Game::create_snake_events()
 	});
 	event_manager.add(update);
 
+
 	BaseEvent* set_snake = new SimpleEvent(INDEP, [&]() { return !dying; },
 		[&]()
 	{
@@ -32,7 +33,7 @@ void Game::create_snake_events()
 	{
 		for (auto& block : tetris_blocks)
 		{
-			if (choose_color(block->get_state()) == color_to_eat)
+			if (choose_color(block->get_state()) == color_to_eat || eat_all)
 			{
 				if (block->is_eaten(snake.get_head_pos()))
 					return true;
@@ -128,7 +129,7 @@ void Game::create_snake_events()
 	BaseEvent* check_victory = new SimpleEvent(INDEP,
 						   ALWAYS_RET_T,
 						   [&](){
-						     if(snake.get_score() == 4)
+						     if(snake.get_score() == SCORE_TO_WIN)
 						       move_to_next = true;						     
 						   });
 	event_manager.add(check_victory);
