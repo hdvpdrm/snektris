@@ -29,6 +29,17 @@ void Game::set_text()
 	move.setString("move:");
 	move.setPosition(sf::Vector2f(10.0f, 340.0f));
 
+	eat_all_label.setFont(label_font);
+	eat_all_label.setCharacterSize(18);
+	eat_all_label.setString("eat ");
+	eat_all_label.setPosition(sf::Vector2f(10.0f,320.0f));
+
+	eat_all_label_value.setFont(label_font);
+	eat_all_label_value.setCharacterSize(18);
+	eat_all_label_value.setString("all!");
+	eat_all_label_value.setPosition(sf::Vector2f(65.0f,320.0f));
+
+	
 	user_name.setFont(label_font);
 	user_name.setCharacterSize(14);
 	user_name.setPosition(sf::Vector2f(8, 410.0f));
