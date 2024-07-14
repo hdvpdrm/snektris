@@ -14,7 +14,7 @@ void Game::create_snake_events()
 		 [&]() { return sf::Keyboard::isKeyPressed(sf::Keyboard::X) and !eat_all;},
 		 [&]()
 		 {
-		   if(snake.get_score() - 2 >= 0)
+		   if(snake.get_score() - 10 >= 0)
 		     {
 		       snake.spend_score();
 		       eat_all = true;
