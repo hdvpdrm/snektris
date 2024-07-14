@@ -92,7 +92,7 @@ public:
 
 	void add_score() { score+=2; }
 	int get_score() { return score; }
-        void spend_score() { score-=2;}
+        void spend_score() { score-=10;}
   
 	int get_apples_till_grow() { return apples_till_grow; }
 
