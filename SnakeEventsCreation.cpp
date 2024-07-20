@@ -16,6 +16,7 @@ void Game::create_snake_events()
 		 {
 		   if(snake.get_score() - 10 >= 0)
 		     {
+		       x_sound.play();
 		       snake.spend_score();
 		       eat_all = true;
 		       super_power_clock.restart();
