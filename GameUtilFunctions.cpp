@@ -179,3 +179,31 @@ bool Game::does_new_dir_kills_snake(Direction dir)
 	auto pos = move_point(snake.get_head_pos(), dir);
 	return map->is_snake_at_pos(pos.x, pos.y);
 }
+short Game::compute_fullness()
+{
+  int counter = 0;
+  for(int y = 0;y<map->get_height();++y)
+    {
+      for(int x = 0;x<map->get_width();++x)
+	{
+	  if(map->is_apple(x,y))++counter;
+	}
+
+    }
+
+  float square = map->get_height()*map->get_width();
+  std::cout<<counter<<std::endl;
+  float val = (float)counter/square;
+  if(val < 0.2) return 0;
+  else if(val >= 0.2 and val < 0.4) return 1;
+  else if(val >= 0.4 and val < 0.6) return 2;
+  else return 3;
+
+}
+std::string Game::get_fullness_label(short fullness)
+{
+  if(fullness == 0) return "low";
+  else if(fullness == 1) return "mid";
+  else if(fullness == 2) return "high";
+  else return "fuck";
+}
