@@ -2,6 +2,9 @@
 
 Map::Map(size_t width, size_t height,const sf::Vector2u& snake_head_pos)
 {
+  this->width =width;
+  this->height =height;
+  
 	//fill map with empty cells
 	map = new Matrix<GameState>(width, height);
 	for (int y  = 0; y<height;++y)
