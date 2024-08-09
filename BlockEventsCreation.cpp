@@ -81,4 +81,18 @@ void Game::create_blocks_events()
 		[&]() { clear_ground(); });
 	event_manager.add(_clear_ground);
 
+	BaseEvent* check_fullness = new SimpleEvent(INDEP,
+						      [&](){ return false;},						    
+						   [&]()
+						   {
+						     //loosing = true;
+						     //cout<<"fefe"<<endl;							
+						     //event_manager.stop();
+						     //snake_parts = map->get_snake();
+						     //clock.restart();
+						       
+						      });
+	event_manager.add(check_fullness);
+						      
+						      
 }
