@@ -34,7 +34,7 @@ private:
   
     Map* map = nullptr;
     Timer timer;
-    sf::Text time, length, apples_to_grow, eat,move, score, user_name;
+  sf::Text time, length, apples_to_grow, eat,move, score, user_name, fullness;
     sftk::FancyText title;
     sf::Text pause_label;
 
@@ -156,6 +156,9 @@ private:
 	void update_snake(size_t x, size_t y, bool should_decrement = true);
 	bool is_pressed(sf::Keyboard::Key key);
 	void clear_ground();
+  
+  short compute_fullness();
+  std::string get_fullness_label(short fullness);
 	/////
 
 
