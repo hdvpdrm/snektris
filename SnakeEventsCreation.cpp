@@ -87,43 +87,15 @@ void Game::create_snake_events()
 
 					if (curr == move_point(snake.get_head_pos(), snake.get_dir()))
 					{
-						event_manager.stop();
-						snake_parts = map->get_snake();
-						clock.restart();
+					  event_manager.stop();
+					  snake_parts = map->get_snake();
+					  clock.restart();
 					}
 				}
 			}
 		}
 	});
 	event_manager.add(check_death);
-
-	/*!@@ DEPRECATED FOR SOME TIME...
-	//TODO:::!
-		BaseEvent* check_blocks_reach_top = new MapEvent(DEP, ALWAYS_RET_T,
-			[&](size_t x, size_t y, Map* map)
-			{
-		  if(map->is_column_filled_with_blocks(x))
-		{
-		  event_manager.stop();
-		  snake_parts = map->get_snake();
-		  clock.restart();
-		  loosing = true;
-		}
-		/*
-				for (auto& block : tetris_blocks)
-				{
-					if (block->did_reach_the_top())
-					{
-						event_manager.stop();
-						snake_parts = map->get_snake();
-						clock.restart();
-						loosing = true;
-					}
-			/*    }*/
-			//        });*/
-	//event_manager.add(check_blocks_reach_top);
-
-
 
 	BaseEvent* process_snake_fading = new SimpleEvent(AS, ALWAYS_RET_T,
 		[&]() {
