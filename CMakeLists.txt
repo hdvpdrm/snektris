@@ -3,7 +3,7 @@ project(snektris)
 set (CMAKE_CXX_STANDARD 17)
 
 set(SOURCE main.cpp)
-set(HEADERS 
+set(HEADERS
 DeathStateMachine.hpp
 EventManager.hpp
 VictoryScreen.hpp
