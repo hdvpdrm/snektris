@@ -68,7 +68,8 @@ void Game::draw_text(sf::RenderWindow& window)
 	window.draw(time);
 	window.draw(length);
 	window.draw(apples_to_grow);
-
+	window.draw(fullness);
+	
 	if(!eat_all)
 	  {
 	    window.draw(eat);
