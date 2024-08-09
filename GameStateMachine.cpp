@@ -42,8 +42,13 @@ void Game::set_text()
 	
 	user_name.setFont(label_font);
 	user_name.setCharacterSize(14);
-	user_name.setPosition(sf::Vector2f(8, 410.0f));
+	user_name.setPosition(sf::Vector2f(8, 430.0f));
 
+	fullness.setFont(label_font);
+	fullness.setCharacterSize(14);
+	fullness.setPosition(8.0f,380.0f);
+	fullness.setString("fullness:");
+	
 	pause_label.setString("Paused");
 	pause_label.setFillColor(sf::Color::Magenta);
 	pause_label.setFont(label_font);
