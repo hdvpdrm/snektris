@@ -13,6 +13,8 @@ void Game::create_text_events()
 		length.setString("length:" + to_string(len));
 
 		apples_to_grow.setString("till grow:" + to_string(snake.get_apples_till_grow()));
+
+		fullness.setString("fullness:" + get_fullness_label(compute_fullness()));
 	});
 	event_manager.add(update_text);
 
