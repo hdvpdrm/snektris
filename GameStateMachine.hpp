@@ -65,7 +65,7 @@ private:
 public:
 	Game(const string& user_name)
 	{
-	  music.openFromFile("assets/game.wav");
+	  music.openFromFile("assets/game.ogg");
 	  music.setVolume(35);
 	  music.setLoop(true);
 	  music.play();
@@ -149,20 +149,20 @@ private:
 	//////
 
 	//GameUtilFunctions.cpp
-	bool does_new_dir_kills_snake(Direction dir);
-	void move_blocks();
-	bool can_snake_move();
-	bool is_dir_blocked(Direction dir);
-	void update_snake(size_t x, size_t y, bool should_decrement = true);
-	bool is_pressed(sf::Keyboard::Key key);
-	void clear_ground();
+  bool does_new_dir_kills_snake(Direction dir);
+  void move_blocks();
+  bool can_snake_move();
+  bool is_dir_blocked(Direction dir);
+  void update_snake(size_t x, size_t y, bool should_decrement = true);
+  bool is_pressed(sf::Keyboard::Key key);
+  void clear_ground();
   
   short compute_fullness();
   std::string get_fullness_label(short fullness);
-	/////
+  /////
 
 
 	//GameStateMachine.cpp
-	void set_text();
+  void set_text();
 };
 #endif 
