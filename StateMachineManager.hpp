@@ -61,6 +61,7 @@ public:
 	  delete curr_state_machine;
 	  curr_type = StateMachineType::main_menu;
 	  curr_state_machine = new MainMenu(nullptr);
+	  if(user_name == "smhs") user_name = ""; //high hack
 	}
       else if(curr_type == StateMachineType::help)
 	{
