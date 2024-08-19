@@ -85,11 +85,11 @@ void Game::create_blocks_events()
 						      [&](){ return false;},						    
 						   [&]()
 						   {
-						     //loosing = true;
+						     loosing = true;
 						     //cout<<"fefe"<<endl;							
-						     //event_manager.stop();
-						     //snake_parts = map->get_snake();
-						     //clock.restart();
+						     event_manager.stop();
+						     snake_parts = map->get_snake();
+						     clock.restart();
 						       
 						      });
 	event_manager.add(check_fullness);
