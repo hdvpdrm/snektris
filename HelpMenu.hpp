@@ -9,7 +9,7 @@
 class HelpMenu: public BaseStateMachine
 {
 private:
-  sftk::FancyText help_label, movement_label, hint1, hint2, hint3,hint4,hint5;
+  sftk::FancyText help_label, movement_label, hint1, hint2, hint3,hint4,hint5, hint6;
 public:
   HelpMenu(void* return_value):BaseStateMachine(return_value)
   {
@@ -62,6 +62,11 @@ public:
       <<sf::Color::White<<" to pause game";
     hint5.setPosition(180.0f,450.0f);
       
+    hint6 = sftk::TextBuilder{ font }
+      << sftk::txt::size(40)
+      << sf::Color::Magenta << "high fullness "
+      <<sf::Color::White<<" sucks";
+    hint6.setPosition(220.0f,500.0f);
     
     BaseEvent* check_restart = new SimpleEvent(INDEP, [&]()
     {
@@ -86,6 +91,7 @@ public:
     window.draw(hint3);
     window.draw(hint4);
     window.draw(hint5);
+    window.draw(hint6);
   }
 
 };
