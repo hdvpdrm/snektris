@@ -192,11 +192,10 @@ short Game::compute_fullness()
     }
 
   float square = map->get_height()*map->get_width();
-  std::cout<<counter<<std::endl;
   float val = (float)counter/square;
-  if(val < 0.2) return 0;
-  else if(val >= 0.2 and val < 0.4) return 1;
-  else if(val >= 0.4 and val < 0.6) return 2;
+  if(val < 0.1) return 0;
+  else if(val >= 0.1 and val < 0.15) return 1;
+  else if(val >= 0.15 and val < 0.2) return 2;
   else return 3;
 
 }
