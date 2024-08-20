@@ -25,7 +25,7 @@ public:
     {
         font.loadFromFile("assets/ARCADECLASSIC.TTF");
         label_font.loadFromFile("assets/prstart.ttf");
-        return_value = return_value;
+        this->return_value = return_value;
     }
     virtual ~BaseStateMachine(){}
     
